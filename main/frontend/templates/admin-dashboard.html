@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sky Vault - Admin Dashboard</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter','Segoe UI',system-ui,sans-serif;background:#f1f5f9;color:#334155;min-height:100vh}
+.header{background:linear-gradient(135deg,#1e293b,#334155);color:white;padding:1rem 2rem;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:100;box-shadow:0 4px 20px rgba(0,0,0,.2)}
+.logo{display:flex;align-items:center;gap:.75rem;font-size:1.4rem;font-weight:800}
+.logo i{color:#818cf8}
+.header-right{display:flex;align-items:center;gap:.75rem;flex-wrap:wrap}
+.org-badge{background:rgba(129,140,248,.2);border:1px solid rgba(129,140,248,.4);color:#a5b4fc;padding:.35rem .9rem;border-radius:20px;font-size:.8rem;font-weight:600}
+.code-badge{background:rgba(34,197,94,.15);border:1px solid rgba(34,197,94,.3);color:#86efac;padding:.35rem .9rem;border-radius:20px;font-size:.8rem;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:.4rem}
+.code-badge:hover{background:rgba(34,197,94,.25)}
+.logout-btn{background:rgba(239,68,68,.15);border:1px solid rgba(239,68,68,.3);color:#fca5a5;padding:.35rem .9rem;border-radius:20px;cursor:pointer;font-size:.8rem;font-weight:600}
+.logout-btn:hover{background:rgba(239,68,68,.3)}
+.layout{display:grid;grid-template-columns:220px 1fr;min-height:calc(100vh - 64px)}
+.sidebar{background:#1e293b;padding:1.5rem 0}
+.sidebar-label{font-size:.68rem;font-weight:700;color:#475569;text-transform:uppercase;letter-spacing:1px;padding:0 1.25rem;margin:1.25rem 0 .4rem}
+.nav-item{display:flex;align-items:center;gap:.7rem;padding:.7rem 1.25rem;cursor:pointer;transition:all .2s;font-size:.875rem;font-weight:500;color:#94a3b8;border-left:3px solid transparent}
+.nav-item:hover{background:rgba(255,255,255,.05);color:white}
+.nav-item.active{background:rgba(129,140,248,.15);color:#a5b4fc;border-left-color:#818cf8}
+.nav-item i{width:16px;text-align:center}
+.main{padding:2rem;overflow-y:auto}
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1.25rem;margin-bottom:2rem}
+.stat-card{background:white;border-radius:16px;padding:1.25rem;box-shadow:0 2px 12px rgba(0,0,0,.06);display:flex;align-items:center;gap:1rem}
+.stat-icon{width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.3rem;flex-shrink:0}
+.si-purple{background:#ede9fe;color:#7c3aed}.si-blue{background:#dbeafe;color:#2563eb}.si-green{background:#dcfce7;color:#16a34a}.si-orange{background:#ffedd5;color:#ea580c}
+.stat-value{font-size:1.75rem;font-weight:800;color:#1e293b;line-height:1}
+.stat-label{font-size:.75rem;color:#64748b;margin-top:.2rem}
+.section{display:none}.section.active{display:block}
+.section-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:1.25rem;flex-wrap:wrap;gap:.75rem}
+.section-title{font-size:1.2rem;font-weight:700;color:#1e293b}
+.card{background:white;border-radius:16px;box-shadow:0 2px 12px rgba(0,0,0,.06);overflow:hidden}
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse}
+th{background:#f8fafc;padding:.8rem 1.25rem;text-align:left;font-size:.72rem;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid #e2e8f0}
+td{padding:.8rem 1.25rem;border-bottom:1px solid #f1f5f9;font-size:.875rem;color:#334155;vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#f8fafc}
+.badge{display:inline-flex;align-items:center;padding:.2rem .65rem;border-radius:20px;font-size:.72rem;font-weight:600}
+.b-teacher{background:#dbeafe;color:#1d4ed8}.b-student{background:#dcfce7;color:#15803d}.b-admin{background:#ede9fe;color:#6d28d9}.b-user{background:#f1f5f9;color:#475569}
+.btn{padding:.5rem 1.1rem;border-radius:10px;border:none;font-size:.825rem;font-weight:600;cursor:pointer;transition:all .2s;display:inline-flex;align-items:center;gap:.4rem}
+.btn-primary{background:#6366f1;color:white}.btn-primary:hover{background:#4f46e5}
+.btn-danger{background:#fee2e2;color:#dc2626}.btn-danger:hover{background:#fecaca}
+.btn-blue{background:#dbeafe;color:#1d4ed8}.btn-blue:hover{background:#bfdbfe}
+.btn-green{background:#dcfce7;color:#15803d}.btn-green:hover{background:#bbf7d0}
+.btn-sm{padding:.3rem .7rem;font-size:.775rem}
+.actions-group{display:flex;gap:.4rem;flex-wrap:wrap}
+.search-bar{display:flex;align-items:center;gap:.5rem;background:#f1f5f9;border:1px solid #e2e8f0;border-radius:10px;padding:.45rem .9rem;width:240px}
+.search-bar input{border:none;background:transparent;outline:none;font-size:.85rem;color:#334155;width:100%}
+.search-bar i{color:#94a3b8}
+.empty{text-align:center;padding:3rem;color:#94a3b8}
+.empty i{font-size:2.5rem;margin-bottom:.75rem;display:block}
+.settings-card{background:white;border-radius:16px;padding:2rem;box-shadow:0 2px 12px rgba(0,0,0,.06);max-width:500px}
+.settings-row{margin-bottom:1.5rem}
+.settings-row-label{font-size:.75rem;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.5px;margin-bottom:.4rem}
+.settings-row-value{font-size:1rem;font-weight:600;color:#1e293b}
+.toast{position:fixed;bottom:2rem;right:2rem;background:#1e293b;color:white;padding:.875rem 1.5rem;border-radius:12px;font-size:.875rem;font-weight:500;z-index:9999;display:none;align-items:center;gap:.5rem;box-shadow:0 8px 30px rgba(0,0,0,.2)}
+.toast.show{display:flex}.toast.success{border-left:4px solid #22c55e}.toast.error{border-left:4px solid #ef4444}
+@media(max-width:768px){.layout{grid-template-columns:1fr}.sidebar{display:none}.stats-grid{grid-template-columns:1fr 1fr}}
+</style>
+</head>
+<body>
+<header class="header">
+  <div class="logo"><i class="fas fa-cloud"></i><span>Sky Vault</span></div>
+  <div class="header-right">
+    <span class="org-badge"><i class="fas fa-building"></i> <span id="orgNameBadge">Loading...</span></span>
+    <span class="code-badge" onclick="copyCode()" title="Click to copy join code"><i class="fas fa-key"></i><span id="orgCodeText">-</span></span>
+    <button class="logout-btn" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</button>
+  </div>
+</header>
+<div class="layout">
+  <aside class="sidebar">
+    <div class="sidebar-label">Overview</div>
+    <div class="nav-item active" data-section="overview"><i class="fas fa-chart-pie"></i> Dashboard</div>
+    <div class="sidebar-label">Organisation</div>
+    <div class="nav-item" data-section="members"><i class="fas fa-users"></i> Members</div>
+    <div class="nav-item" data-section="classes"><i class="fas fa-chalkboard"></i> Classes</div>
+    <div class="sidebar-label">Account</div>
+    <div class="nav-item" data-section="settings"><i class="fas fa-cog"></i> Settings</div>
+  </aside>
+  <main class="main">
+    <div class="section active" id="section-overview">
+      <div class="stats-grid">
+        <div class="stat-card"><div class="stat-icon si-purple"><i class="fas fa-users"></i></div><div><div class="stat-value" id="stat-total">-</div><div class="stat-label">Total Members</div></div></div>
+        <div class="stat-card"><div class="stat-icon si-blue"><i class="fas fa-chalkboard-teacher"></i></div><div><div class="stat-value" id="stat-teachers">-</div><div class="stat-label">Teachers</div></div></div>
+        <div class="stat-card"><div class="stat-icon si-green"><i class="fas fa-user-graduate"></i></div><div><div class="stat-value" id="stat-students">-</div><div class="stat-label">Students</div></div></div>
+        <div class="stat-card"><div class="stat-icon si-orange"><i class="fas fa-chalkboard"></i></div><div><div class="stat-value" id="stat-classes">-</div><div class="stat-label">Classes</div></div></div>
+      </div>
+      <div class="section-header">
+        <div class="section-title">Recent Members</div>
+        <button class="btn btn-primary btn-sm" onclick="showSection('members')"><i class="fas fa-arrow-right"></i> View All</button>
+      </div>
+      <div class="card"><div class="table-wrap"><table>
+        <thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Joined</th></tr></thead>
+        <tbody id="recentMembersBody"><tr><td colspan="4" style="text-align:center;padding:2rem;color:#94a3b8">Loading...</td></tr></tbody>
+      </table></div></div>
+    </div>
+    <div class="section" id="section-members">
+      <div class="section-header">
+        <div class="section-title">All Members</div>
+        <div class="search-bar"><i class="fas fa-search"></i><input type="text" id="memberSearch" placeholder="Search name or email..."></div>
+      </div>
+      <div class="card"><div class="table-wrap"><table>
+        <thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Student ID</th><th>Joined</th><th>Actions</th></tr></thead>
+        <tbody id="membersBody"><tr><td colspan="6" style="text-align:center;padding:2rem;color:#94a3b8">Loading...</td></tr></tbody>
+      </table></div></div>
+    </div>
+    <div class="section" id="section-classes">
+      <div class="section-header"><div class="section-title">Classes</div></div>
+      <div class="card"><div class="table-wrap"><table>
+        <thead><tr><th>Class Name</th><th>Subject</th><th>Teacher</th><th>Created</th></tr></thead>
+        <tbody id="classesBody"><tr><td colspan="4" style="text-align:center;padding:2rem;color:#94a3b8">Loading...</td></tr></tbody>
+      </table></div></div>
+    </div>
+    <div class="section" id="section-settings">
+      <div class="section-title" style="margin-bottom:1.25rem">Organisation Settings</div>
+      <div class="settings-card">
+        <div class="settings-row"><div class="settings-row-label">Organisation Name</div><div class="settings-row-value" id="settingsOrgName">-</div></div>
+        <div class="settings-row">
+          <div class="settings-row-label">Join Code</div>
+          <div style="display:flex;align-items:center;gap:.75rem">
+            <span style="font-size:1.6rem;font-weight:800;color:#6366f1;letter-spacing:.25rem" id="settingsOrgCode">-</span>
+            <button class="btn btn-primary btn-sm" onclick="copyCode()"><i class="fas fa-copy"></i> Copy</button>
+          </div>
+          <div style="font-size:.8rem;color:#64748b;margin-top:.4rem">Share this code with teachers and students to join your organisation.</div>
+        </div>
+        <div class="settings-row"><div class="settings-row-label">Admin Email</div><div class="settings-row-value" id="settingsAdminEmail">-</div></div>
+      </div>
+    </div>
+  </main>
+</div>
+<div class="toast" id="toast"></div>
+<script type="module">
+import { auth } from '/firebase.js';
+import { getOrgStats, getOrgMembers, removeOrgMember, getOrgClasses } from '/api.js';
+const API = 'http://127.0.0.1:5000/api';
+let orgId=null,orgCode=null,allMembers=[];
+auth.onAuthStateChanged(async user=>{
+  if(!user){window.location.href='admin-auth.html';return;}
+  orgId=localStorage.getItem('orgId');
+  orgCode=localStorage.getItem('orgCode');
+  const orgName=localStorage.getItem('orgName')||'Organisation';
+  if(!orgId){window.location.href='admin-auth.html';return;}
+  document.getElementById('orgNameBadge').textContent=orgName;
+  document.getElementById('orgCodeText').textContent=orgCode||'-';
+  document.getElementById('settingsOrgName').textContent=orgName;
+  document.getElementById('settingsOrgCode').textContent=orgCode||'-';
+  document.getElementById('settingsAdminEmail').textContent=user.email;
+  await Promise.all([loadStats(),loadMembers(),loadClasses()]);
+});
+async function loadStats(){
+  const r=await getOrgStats(orgId);
+  if(!r.success)return;
+  document.getElementById('stat-total').textContent=r.data.total_members;
+  document.getElementById('stat-teachers').textContent=r.data.teachers;
+  document.getElementById('stat-students').textContent=r.data.students;
+  document.getElementById('stat-classes').textContent=r.data.classes;
+}
+async function loadMembers(){
+  const r=await getOrgMembers(orgId);
+  allMembers=(r.success&&r.data.members)?r.data.members:[];
+  renderMembers(allMembers);
+  const recent=[...allMembers].sort((a,b)=>new Date(b.created_at)-new Date(a.created_at)).slice(0,5);
+  const rb=document.getElementById('recentMembersBody');
+  rb.innerHTML=recent.length?recent.map(m=>`<tr><td><strong>${esc(m.name||'-')}</strong></td><td>${esc(m.email)}</td><td><span class="badge b-${m.role}">${m.role}</span></td><td>${fmtDate(m.created_at)}</td></tr>`).join(''):`<tr><td colspan="4"><div class="empty"><i class="fas fa-users-slash"></i>No members yet</div></td></tr>`;
+}
+function renderMembers(list){
+  const tbody=document.getElementById('membersBody');
+  if(!list.length){tbody.innerHTML=`<tr><td colspan="6"><div class="empty"><i class="fas fa-users-slash"></i>No members yet. Share the join code so people can sign up.</div></td></tr>`;return;}
+  tbody.innerHTML=list.map(m=>`<tr>
+    <td><strong>${esc(m.name||'-')}</strong></td>
+    <td style="color:#64748b">${esc(m.email)}</td>
+    <td><span class="badge b-${m.role}">${m.role}</span></td>
+    <td>${m.student_id?`<code style="background:#f1f5f9;padding:.15rem .4rem;border-radius:4px;font-size:.8rem">${m.student_id}</code>`:'-'}</td>
+    <td style="color:#64748b">${fmtDate(m.created_at)}</td>
+    <td>${m.role!=='admin'?`<div class="actions-group">
+      ${m.role!=='teacher'?`<button class="btn btn-blue btn-sm" onclick="promoteUser(${m.id},'teacher','${esc(m.name||m.email)}')"><i class="fas fa-chalkboard-teacher"></i> Teacher</button>`:''}
+      ${m.role!=='student'?`<button class="btn btn-green btn-sm" onclick="promoteUser(${m.id},'student','${esc(m.name||m.email)}')"><i class="fas fa-user-graduate"></i> Student</button>`:''}
+      <button class="btn btn-danger btn-sm" onclick="removeMember(${m.id},'${esc(m.name||m.email)}')"><i class="fas fa-user-minus"></i> Remove</button>
+    </div>`:'<span style="color:#94a3b8;font-size:.8rem">You</span>'}</td>
+  </tr>`).join('');
+}
+window.promoteUser=async function(userId,newRole,name){
+  if(!confirm(`Make "${name}" a ${newRole}?`))return;
+  const resp=await fetch(`${API}/org/members/${userId}/role`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({role:newRole})});
+  const data=await resp.json();
+  if(resp.ok){toast(`${name} is now a ${newRole}`,'success');await Promise.all([loadStats(),loadMembers()]);}
+  else toast(data.error||'Failed','error');
+};
+window.removeMember=async function(userId,name){
+  if(!confirm(`Remove "${name}"?`))return;
+  const r=await removeOrgMember(userId);
+  if(r.success){toast('Member removed','success');await Promise.all([loadStats(),loadMembers()]);}
+  else toast('Failed to remove','error');
+};
+async function loadClasses(){
+  const r=await getOrgClasses(orgId);
+  const tbody=document.getElementById('classesBody');
+  if(!r.success||!r.data.classes||!r.data.classes.length){tbody.innerHTML=`<tr><td colspan="4"><div class="empty"><i class="fas fa-chalkboard"></i>No classes yet.</div></td></tr>`;return;}
+  tbody.innerHTML=r.data.classes.map(c=>`<tr><td><strong>${esc(c.name)}</strong></td><td>${esc(c.subject||'-')}</td><td>${esc(c.teacher_name||'-')}</td><td style="color:#64748b">${fmtDate(c.created_at)}</td></tr>`).join('');
+}
+document.getElementById('memberSearch').addEventListener('input',function(){
+  const q=this.value.toLowerCase();
+  renderMembers(allMembers.filter(m=>(m.name||'').toLowerCase().includes(q)||m.email.toLowerCase().includes(q)));
+});
+document.querySelectorAll('.nav-item').forEach(item=>item.addEventListener('click',()=>showSection(item.dataset.section)));
+window.showSection=function(name){
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.getElementById('section-'+name).classList.add('active');
+  document.querySelector(`.nav-item[data-section="${name}"]`).classList.add('active');
+};
+window.copyCode=function(){if(!orgCode)return;navigator.clipboard.writeText(orgCode).then(()=>toast('Join code copied!','success'));};
+document.getElementById('logoutBtn').addEventListener('click',async()=>{if(!confirm('Logout?'))return;await auth.signOut();localStorage.clear();window.location.href='landing-page.html';});
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function fmtDate(iso){if(!iso)return '-';return new Date(iso).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'});}
+function toast(msg,type='success'){const el=document.getElementById('toast');el.textContent=msg;el.className=`toast show ${type}`;setTimeout(()=>el.classList.remove('show'),3000);}
+</script>
+</body>
+</html>

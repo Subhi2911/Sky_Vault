@@ -1,0 +1,1955 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sky Vault - Teacher Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --org-gradient: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            --primary-color: #667eea;
+            --org-color: #11998e;
+        }
+        body {
+            font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+            background: #f8fafc;
+            color: #334155;
+            line-height: 1.6;
+            transition: all 0.5s ease;
+        }
+        body.org-mode { background: #f0fdf9; }
+        .header {
+            background: var(--primary-gradient);
+            color: white;
+            padding: 1rem 0;
+            box-shadow: 0 4px 20px rgba(102,126,234,0.15);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            transition: all 0.5s ease;
+        }
+        body.org-mode .header {
+            background: var(--org-gradient);
+            box-shadow: 0 4px 20px rgba(17,153,142,0.15);
+        }
+        .nav-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .logo { display: flex; align-items: center; gap: 0.75rem; font-size: 1.5rem; font-weight: 800; }
+        .dashboard-toggle {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            background: rgba(255,255,255,0.15);
+            padding: 0.5rem 1rem;
+            border-radius: 50px;
+            backdrop-filter: blur(10px);
+        }
+        .toggle-label { font-size: 0.9rem; font-weight: 600; opacity: 0.8; transition: opacity 0.3s; }
+        .toggle-label.active { opacity: 1; }
+        .toggle-switch {
+            position: relative;
+            width: 60px;
+            height: 30px;
+            background: rgba(255,255,255,0.3);
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .toggle-switch::before {
+            content: '';
+            position: absolute;
+            top: 3px; left: 3px;
+            width: 24px; height: 24px;
+            background: white;
+            border-radius: 50%;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        }
+        .toggle-switch.active::before { left: 33px; }
+        .nav-actions { display: flex; align-items: center; gap: 1.5rem; }
+        .search-box { position: relative; }
+        .search-box input {
+            background: rgba(255,255,255,0.15);
+            border: 2px solid rgba(255,255,255,0.2);
+            border-radius: 25px;
+            padding: 0.5rem 1rem 0.5rem 2.5rem;
+            color: white;
+            width: 280px;
+            backdrop-filter: blur(10px);
+        }
+        .search-box input::placeholder { color: rgba(255,255,255,0.7); }
+        .search-box i { position: absolute; left: 0.75rem; top: 50%; transform: translateY(-50%); color: rgba(255,255,255,0.7); }
+        .user-menu { display: flex; align-items: center; gap: 1rem; }
+        .notification-btn, .profile-btn {
+            background: rgba(255,255,255,0.15);
+            border: none; color: white;
+            padding: 0.75rem; border-radius: 50%;
+            cursor: pointer; transition: all 0.3s ease;
+            position: relative;
+        }
+        .notif-badge {
+            position: absolute; top: 2px; right: 2px;
+            background: #ef4444; color: white;
+            width: 18px; height: 18px;
+            border-radius: 50%; font-size: 0.65rem;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 700;
+        }
+        .logout-btn {
+            background: rgba(255,255,255,0.15);
+            border: 2px solid rgba(255,255,255,0.3);
+            color: white; padding: 0.5rem 1.25rem;
+            border-radius: 25px; cursor: pointer;
+            font-weight: 600; transition: all 0.3s ease;
+        }
+        .main-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            gap: 2rem;
+        }
+        .sidebar {
+            background: white;
+            border-radius: 16px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            height: fit-content;
+            position: sticky;
+            top: 120px;
+            transition: all 0.5s ease;
+        }
+        body.org-mode .sidebar {
+            background: linear-gradient(135deg, #f0fdf9 0%, #d1fae5 100%);
+            box-shadow: 0 4px 20px rgba(17,153,142,0.1);
+        }
+        .teacher-info-card {
+            background: var(--primary-gradient);
+            border-radius: 12px;
+            padding: 1.25rem;
+            color: white;
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+        .teacher-info-card { background: var(--org-gradient); }
+        .sidebar-section { margin-bottom: 2rem; }
+        .sidebar-title {
+            font-size: 0.875rem;
+            font-weight: 700;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 1rem;
+        }
+        body.org-mode .sidebar-title { color: #11998e; }
+        .sidebar-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1rem;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+        .sidebar-item:hover { background: #f1f5f9; color: #667eea; }
+        body.org-mode .sidebar-item:hover { background: #d1fae5; color: #11998e; }
+        .sidebar-item.active { background: var(--primary-gradient); color: white; }
+        body.org-mode .sidebar-item.active { background: var(--org-gradient); }
+        .storage-info {
+            background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+            border-radius: 12px;
+            padding: 1.25rem;
+            text-align: center;
+        }
+        body.org-mode .storage-info { background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%); }
+        .storage-text { font-size: 0.875rem; color: #64748b; margin-bottom: 0.5rem; }
+        .upgrade-btn {
+            background: var(--primary-gradient);
+            color: white; border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        body.org-mode .upgrade-btn { background: var(--org-gradient); }
+        .content-area {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            overflow: visible;
+            min-height: 600px;
+            transition: all 0.5s ease;
+        }
+        body.org-mode .content-area {
+            background: linear-gradient(to bottom, #f0fdf9 0%, white 100%);
+            box-shadow: 0 4px 20px rgba(17,153,142,0.1);
+        }
+        .content-header {
+            padding: 2rem 2rem 1rem;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        body.org-mode .content-header { border-bottom-color: #a7f3d0; }
+        .content-title h2 { font-size: 1.75rem; font-weight: 700; color: #1e293b; }
+        .action-buttons { display: flex; gap: 1rem; margin-top: 1rem; flex-wrap: wrap; }
+        .btn-primary {
+            background: var(--primary-gradient);
+            color: white; border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        body.org-mode .btn-primary { background: var(--org-gradient); }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(102,126,234,0.4); }
+        body.org-mode .btn-primary:hover { box-shadow: 0 6px 20px rgba(17,153,142,0.4); }
+        .btn-secondary {
+            background: #f8fafc; color: #64748b;
+            border: 2px solid #e2e8f0;
+            padding: 0.75rem 1.5rem;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .btn-secondary:hover { background: #f1f5f9; transform: translateY(-2px); }
+        .file-grid {
+            padding: 2rem;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 1.5rem;
+        }
+        .file-card {
+            background: #f8fafc;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 1.5rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: visible;
+        }
+        .file-card:hover { border-color: #667eea; box-shadow: 0 8px 25px rgba(102,126,234,0.15); z-index: 50; }
+        body.org-mode .file-card:hover { border-color: #11998e; box-shadow: 0 8px 25px rgba(17,153,142,0.15); }
+        .file-icon { font-size: 3rem; margin-bottom: 1rem; color: #667eea; }
+        body.org-mode .file-icon { color: #11998e; }
+        .file-name { font-weight: 600; color: #1e293b; margin-bottom: 0.5rem; word-break: break-word; }
+        .file-info { font-size: 0.875rem; color: #64748b; }
+        .file-menu {
+            position: absolute;
+            top: 0.75rem; right: 0.75rem;
+            background: white; border: none;
+            border-radius: 50%;
+            width: 32px; height: 32px;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer;
+            opacity: 0;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            z-index: 100;
+        }
+        .file-card:hover .file-menu { opacity: 1; }
+        .file-menu.active { opacity: 1; }
+        .dropdown-menu {
+            position: absolute;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            min-width: 200px;
+            padding: 0.5rem;
+            display: none;
+            z-index: 9999;
+        }
+        .dropdown-menu.show { display: block; }
+        .dropdown-item {
+            display: flex; align-items: center; gap: 0.75rem;
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 0.95rem;
+            color: #334155;
+            white-space: nowrap;
+        }
+        .dropdown-item:hover { background: #f1f5f9; color: #667eea; }
+        .dropdown-item.danger:hover { background: #fee2e2; color: #dc2626; }
+        .dropdown-item i { width: 20px; text-align: center; flex-shrink: 0; }
+        .dropdown-divider { height: 1px; background: #e2e8f0; margin: 0.5rem 0; }
+        .star-badge {
+            position: absolute; top: 0.5rem; left: 0.5rem;
+            background: #fbbf24; color: white;
+            width: 28px; height: 28px;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 0.875rem;
+        }
+        .trash-badge {
+            position: absolute; top: 0.5rem; left: 0.5rem;
+            background: #ef4444; color: white;
+            padding: 0.25rem 0.5rem;
+            border-radius: 6px;
+            font-size: 0.75rem; font-weight: 600;
+        }
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: #64748b;
+            grid-column: 1 / -1;
+        }
+        .empty-state i { font-size: 4rem; margin-bottom: 1rem; color: #cbd5e1; }
+        .empty-state h3 { font-size: 1.25rem; margin-bottom: 0.5rem; color: #475569; }
+        .classes-grid {
+            padding: 2rem;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+        .class-card {
+            background: white;
+            border: 2px solid #d1fae5;
+            border-radius: 16px;
+            padding: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        .class-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 4px;
+            background: var(--org-gradient);
+        }
+        .class-card:hover { transform: translateY(-4px); box-shadow: 0 8px 25px rgba(17,153,142,0.15); }
+        .class-icon {
+            width: 60px; height: 60px;
+            background: var(--org-gradient);
+            border-radius: 12px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.5rem; color: white;
+            margin-bottom: 1rem;
+        }
+        .class-name { font-size: 1.25rem; font-weight: 700; color: #1e293b; margin-bottom: 0.5rem; }
+        .class-meta { font-size: 0.9rem; color: #64748b; margin-bottom: 0.5rem; }
+        .class-stats {
+            display: flex; gap: 1rem;
+            margin-top: 1rem; padding-top: 1rem;
+            border-top: 1px solid #d1fae5;
+        }
+        .stat-item { display: flex; align-items: center; gap: 0.5rem; font-size: 0.875rem; color: #64748b; }
+        .class-actions {
+            position: absolute;
+            top: 1rem; right: 1rem;
+            display: flex; gap: 0.5rem;
+        }
+        .class-action-btn {
+            background: rgba(17,153,142,0.1);
+            border: none; color: #11998e;
+            width: 32px; height: 32px;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            transition: all 0.2s ease;
+        }
+        .class-action-btn:hover { background: #11998e; color: white; }
+        .class-action-btn.danger:hover { background: #ef4444; color: white; }
+        .detail-view { padding: 2rem; display: none; }
+        .detail-view.active { display: block; }
+        .tabs {
+            display: flex; gap: 0.5rem;
+            margin-bottom: 2rem;
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 0;
+        }
+        .tab-btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            background: none;
+            font-weight: 600;
+            color: #64748b;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            margin-bottom: -2px;
+            transition: all 0.2s ease;
+        }
+        .tab-btn.active { color: #11998e; border-bottom-color: #11998e; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        .assignment-card {
+            background: #f8fafc;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 1.25rem;
+            margin-bottom: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        .assignment-card:hover { border-color: #11998e; box-shadow: 0 4px 15px rgba(17,153,142,0.1); }
+        .assignment-icon {
+            width: 50px; height: 50px;
+            background: var(--org-gradient);
+            border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
+            color: white; font-size: 1.25rem;
+            flex-shrink: 0;
+        }
+        .assignment-info { flex: 1; }
+        .assignment-title { font-weight: 700; color: #1e293b; margin-bottom: 0.25rem; }
+        .assignment-meta { font-size: 0.875rem; color: #64748b; }
+        .assignment-marks {
+            background: #d1fae5;
+            color: #065f46;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.875rem;
+            font-weight: 600;
+        }
+        .student-list { margin-top: 1rem; }
+        .student-row {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 0.75rem 1rem;
+            border-radius: 10px;
+            margin-bottom: 0.5rem;
+            transition: all 0.2s ease;
+        }
+        .student-row:hover { background: #f1f5f9; }
+        .student-row.submitted { cursor: pointer; }
+        .student-row.submitted:hover { background: #d1fae5; }
+        .student-avatar {
+            width: 40px; height: 40px;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 700; font-size: 0.875rem;
+            flex-shrink: 0;
+        }
+        .student-avatar.submitted-av { background: #d1fae5; color: #065f46; }
+        .student-avatar.pending-av { background: #fee2e2; color: #991b1b; }
+        .student-name { font-weight: 600; color: #1e293b; flex: 1; }
+        .student-id-tag { font-size: 0.8rem; color: #64748b; }
+        .status-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+        .status-badge.submitted { background: #d1fae5; color: #065f46; }
+        .status-badge.pending { background: #fee2e2; color: #991b1b; }
+        .section-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+        }
+        .section-title { font-size: 1.1rem; font-weight: 700; color: #1e293b; }
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal-overlay.show { display: flex; }
+        .modal {
+            background: white;
+            border-radius: 20px;
+            padding: 2rem;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        .modal h3 { font-size: 1.25rem; font-weight: 700; color: #1e293b; margin-bottom: 1.5rem; }
+        .form-group { margin-bottom: 1rem; }
+        .form-group label { display: block; font-weight: 600; color: #475569; margin-bottom: 0.5rem; font-size: 0.9rem; }
+        .form-group input, .form-group textarea, .form-group select {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 0.95rem;
+            color: #334155;
+            transition: border-color 0.2s;
+            font-family: inherit;
+        }
+        .form-group input:focus, .form-group textarea:focus { outline: none; border-color: #11998e; }
+        .form-group textarea { resize: vertical; min-height: 80px; }
+        .modal-actions { display: flex; gap: 1rem; margin-top: 1.5rem; justify-content: flex-end; }
+        .notes-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 1.5rem;
+        }
+        .note-card {
+            background: #f8fafc;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 1.5rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        .note-card:hover { border-color: #11998e; box-shadow: 0 4px 15px rgba(17,153,142,0.1); }
+        .note-icon { font-size: 2.5rem; margin-bottom: 0.75rem; color: #11998e; }
+        .note-name { font-weight: 600; color: #1e293b; font-size: 0.9rem; word-break: break-word; }
+        .note-meta { font-size: 0.8rem; color: #64748b; margin-top: 0.25rem; }
+        .submission-preview {
+            background: #f8fafc;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-top: 1rem;
+        }
+        .submission-preview h4 { font-weight: 700; color: #1e293b; margin-bottom: 1rem; }
+        .preview-file {
+            display: flex; align-items: center; gap: 1rem;
+            padding: 1rem;
+            background: white;
+            border-radius: 10px;
+            border: 1px solid #e2e8f0;
+        }
+        .preview-file i { font-size: 2rem; color: #11998e; }
+        .preview-file-info { flex: 1; }
+        .preview-file-name { font-weight: 600; color: #1e293b; }
+        .preview-file-meta { font-size: 0.8rem; color: #64748b; }
+        .notification-list { padding: 0; }
+        .notif-item {
+            display: flex; gap: 1rem;
+            padding: 1rem;
+            border-radius: 12px;
+            margin-bottom: 0.75rem;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            transition: all 0.2s ease;
+        }
+        .notif-item.unread { background: #f0fdf9; border-color: #a7f3d0; }
+        .notif-icon {
+            width: 40px; height: 40px;
+            border-radius: 50%;
+            background: var(--org-gradient);
+            display: flex; align-items: center; justify-content: center;
+            color: white; flex-shrink: 0;
+        }
+        .notif-text { flex: 1; }
+        .notif-title { font-weight: 600; color: #1e293b; font-size: 0.9rem; }
+        .notif-sub { font-size: 0.8rem; color: #64748b; margin-top: 0.2rem; }
+        .notif-time { font-size: 0.75rem; color: #94a3b8; }
+        .back-btn {
+            background: rgba(100,116,139,0.1);
+            color: #64748b;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex; align-items: center; gap: 0.5rem;
+            transition: all 0.2s ease;
+        }
+        .back-btn:hover { background: rgba(100,116,139,0.2); }
+        @media (max-width: 1024px) {
+            .main-container { grid-template-columns: 1fr; }
+            .sidebar { position: static; }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="nav-container">
+            <div style="display:flex;align-items:center;gap:2rem;">
+                <div class="logo"><i class="fas fa-cloud"></i><span>Sky Vault</span></div>
+                <div class="dashboard-toggle">
+                    <span class="toggle-label active" id="personalLabel">Personal</span>
+                    <div class="toggle-switch" id="toggleSwitch" onclick="toggleDashboard()"></div>
+                    <span class="toggle-label" id="orgLabel">Organisation</span>
+                </div>
+            </div>
+            <div class="nav-actions">
+                <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="searchInput" placeholder="Search..." oninput="handleSearch(this.value)">
+                </div>
+                <div class="user-menu">
+                    <button class="notification-btn" onclick="openNotifPanel()" id="notifBtn" style="display:none;">
+                        <i class="fas fa-bell"></i>
+                        <span class="notif-badge" id="notifBadge" style="display:none;"></span>
+                    </button>
+                    <button class="profile-btn" onclick="openProfileModal()"><i class="fas fa-user"></i></button>
+                    <button class="logout-btn" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="main-container">
+        <aside class="sidebar">
+            <div class="teacher-info-card">
+                <div style="font-size:0.875rem;margin-top:0.5rem;opacity:0.9;" id="teacherNameDisplay">Teacher</div>
+            </div>
+
+            <div class="sidebar-section" id="personalNav">
+                <div class="sidebar-title">Navigation</div>
+                <div class="sidebar-item active" onclick="switchPersonalView('myfiles',this)"><i class="fas fa-home"></i><span>My Files</span></div>
+                <div class="sidebar-item" onclick="switchPersonalView('recent',this)"><i class="fas fa-clock"></i><span>Recent</span></div>
+                <div class="sidebar-item" onclick="switchPersonalView('starred',this)"><i class="fas fa-star"></i><span>Starred</span></div>
+                <div class="sidebar-item" onclick="switchPersonalView('trash',this)"><i class="fas fa-trash"></i><span>Trash</span></div>
+            </div>
+
+            <div class="sidebar-section" id="orgNav" style="display:none;">
+                <div class="sidebar-title">Organisation</div>
+                <div class="sidebar-item active" onclick="switchOrgView('classes',this)"><i class="fas fa-chalkboard-teacher"></i><span>My Classes</span></div>
+                <div class="sidebar-item" onclick="switchOrgView('assignments',this)"><i class="fas fa-tasks"></i><span>Assignments</span></div>
+                <div class="sidebar-item" onclick="switchOrgView('students',this)"><i class="fas fa-users"></i><span>Students</span></div>
+                <div class="sidebar-item" onclick="switchOrgView('notifications',this)"><i class="fas fa-bell"></i><span>Notifications</span></div>
+            </div>
+
+            <div class="storage-info">
+                <i class="fas fa-hdd" style="font-size:2rem;color:#667eea;"></i>
+                <div class="storage-text" style="margin-top:0.5rem;">Storage Used</div>
+                <div style="font-weight:700;color:#1e293b;margin-bottom:0.5rem;" id="storageText">Loading...</div>
+                <div style="background:#e2e8f0;border-radius:50px;height:8px;margin-bottom:1rem;overflow:hidden;">
+                    <div id="storageBar" style="height:100%;background:var(--primary-gradient);border-radius:50px;width:0%;transition:width 0.8s ease;"></div>
+                </div>
+                <button class="upgrade-btn">Upgrade Storage</button>
+            </div>
+        </aside>
+
+        <main class="content-area">
+            <div class="content-header">
+                <div class="content-title"><h2 id="contentTitle">My Files</h2></div>
+                <div class="action-buttons" id="actionButtons">
+                    <button class="btn-primary" id="uploadBtn" onclick="uploadPersonalFile()"><i class="fas fa-upload"></i> Upload Files</button>
+                    <button class="btn-secondary" id="newFolderBtn" onclick="createPersonalFolder()"><i class="fas fa-folder-plus"></i> New Folder</button>
+                    <button id="emptyTrashBtn" style="display:none;background:#fee2e2;color:#dc2626;border:1px solid #fecaca;padding:0.75rem 1.5rem;border-radius:12px;font-weight:600;cursor:pointer;align-items:center;gap:0.5rem;" onclick="emptyPersonalTrash()"><i class="fas fa-trash-alt"></i> Empty Trash</button>
+                    <button class="btn-primary" id="createClassBtn" style="display:none;background:var(--org-gradient);" onclick="openCreateClassModal()"><i class="fas fa-plus"></i> Create Class</button>
+                    <button class="btn-primary" id="addStudentBtn" style="display:none;background:var(--org-gradient);" onclick="openAddStudentModal()"><i class="fas fa-user-plus"></i> Add Student</button>
+                    <button class="btn-primary" id="uploadNoteBtn" style="display:none;background:var(--org-gradient);" onclick="openUploadNoteModal()"><i class="fas fa-upload"></i> Upload Note</button>
+                    <button class="btn-primary" id="uploadAssignBtn" style="display:none;background:var(--org-gradient);" onclick="openUploadAssignModal()"><i class="fas fa-plus"></i> New Assignment</button>
+                </div>
+            </div>
+
+            <!-- Personal File Grid -->
+            <div class="file-grid" id="fileGrid"></div>
+
+            <!-- Org: Classes View -->
+            <div class="classes-grid" id="classesGrid" style="display:none;"></div>
+
+            <!-- Org: Class Detail View -->
+            <div class="detail-view" id="classDetailView">
+                <div style="display:flex;align-items:center;gap:1rem;margin-bottom:1.5rem;">
+                    <button class="back-btn" onclick="backToClasses()"><i class="fas fa-arrow-left"></i> Back</button>
+                    <h3 id="classDetailTitle" style="font-size:1.5rem;font-weight:700;color:#1e293b;"></h3>
+                </div>
+                <div class="tabs">
+                    <button class="tab-btn active" onclick="switchTab('notes',this)">Notes</button>
+                    <button class="tab-btn" onclick="switchTab('assignments',this)">Assignments</button>
+                    <button class="tab-btn" onclick="switchTab('students',this)">Students</button>
+                </div>
+                <div class="tab-content active" id="tab-notes">
+                    <div class="notes-grid" id="notesGrid"></div>
+                </div>
+                <div class="tab-content" id="tab-assignments">
+                    <div id="assignmentsList"></div>
+                </div>
+                <div class="tab-content" id="tab-students">
+                    <div class="student-list" id="classStudentList"></div>
+                </div>
+            </div>
+
+            <!-- Org: Assignment Detail View -->
+            <div class="detail-view" id="assignmentDetailView">
+                <div style="display:flex;align-items:center;gap:1rem;margin-bottom:1.5rem;">
+                    <button class="back-btn" id="assignBackBtn" onclick="backFromAssignment()"><i class="fas fa-arrow-left"></i> Back</button>
+                    <div>
+                        <h3 id="assignDetailTitle" style="font-size:1.5rem;font-weight:700;color:#1e293b;"></h3>
+                        <span id="assignDetailMarks" style="font-size:0.9rem;color:#64748b;"></span>
+                    </div>
+                </div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:2rem;">
+                    <div>
+                        <div class="section-header">
+                            <div class="section-title" style="color:#065f46;"><i class="fas fa-check-circle"></i> Submitted</div>
+                            <span id="submittedCount" style="font-size:0.875rem;color:#64748b;"></span>
+                        </div>
+                        <div id="submittedList"></div>
+                    </div>
+                    <div>
+                        <div class="section-header">
+                            <div class="section-title" style="color:#991b1b;"><i class="fas fa-times-circle"></i> Not Submitted</div>
+                            <span id="pendingCount" style="font-size:0.875rem;color:#64748b;"></span>
+                        </div>
+                        <div id="pendingList"></div>
+                    </div>
+                </div>
+                <div id="submissionPreviewArea"></div>
+            </div>
+
+            <!-- Org: All Assignments View -->
+            <div class="detail-view" id="allAssignmentsView">
+                <div id="allAssignmentsList"></div>
+            </div>
+
+            <!-- Org: Students View -->
+            <div class="detail-view" id="studentsView">
+                <div id="allStudentsList"></div>
+            </div>
+
+            <!-- Org: Notifications View -->
+            <div class="detail-view" id="notificationsView">
+                <div class="notification-list" id="notificationList"></div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Profile Modal -->
+    <div class="modal-overlay" id="profileModal">
+        <div class="modal" style="max-width:420px;">
+            <h3><i class="fas fa-user-circle" style="color:#11998e;margin-right:0.5rem;"></i>My Profile</h3>
+            <div id="profileContent"></div>
+        </div>
+    </div>
+
+    <!-- Notification Side Panel -->
+    <div id="notifPanel" style="position:fixed;top:0;right:-420px;width:400px;height:100vh;background:white;box-shadow:-4px 0 30px rgba(0,0,0,0.15);z-index:2000;transition:right 0.3s ease;display:flex;flex-direction:column;">
+        <div style="padding:1.5rem;background:var(--org-gradient);color:white;display:flex;align-items:center;justify-content:space-between;">
+            <h3 style="font-weight:700;font-size:1.1rem;"><i class="fas fa-bell" style="margin-right:0.5rem;"></i>Notifications</h3>
+            <button onclick="closeNotifPanel()" style="background:rgba(255,255,255,0.2);border:none;color:white;width:32px;height:32px;border-radius:50%;cursor:pointer;font-size:1rem;">×</button>
+        </div>
+        <div id="notifPanelList" style="flex:1;overflow-y:auto;padding:1rem;"></div>
+    </div>
+    <div id="notifOverlay" onclick="closeNotifPanel()" style="position:fixed;inset:0;background:rgba(0,0,0,0.3);z-index:1999;display:none;"></div>
+
+    <!-- Create Class Modal -->
+    <div class="modal-overlay" id="createClassModal">
+        <div class="modal">
+            <h3><i class="fas fa-chalkboard-teacher" style="color:#11998e;margin-right:0.5rem;"></i>Create New Class</h3>
+            <div class="form-group">
+                <label>Class Name</label>
+                <input type="text" id="newClassName" placeholder="e.g. Mathematics 101">
+            </div>
+            <div class="form-group">
+                <label>Subject</label>
+                <input type="text" id="newClassSubject" placeholder="e.g. Algebra, Physics...">
+            </div>
+            <div class="form-group">
+                <label>Description</label>
+                <textarea id="newClassDesc" placeholder="Brief description..."></textarea>
+            </div>
+            <div class="modal-actions">
+                <button class="btn-secondary" onclick="closeModal('createClassModal')">Cancel</button>
+                <button class="btn-primary" style="background:var(--org-gradient);" onclick="createClass()">Create Class</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Student Modal -->
+    <div class="modal-overlay" id="addStudentModal">
+        <div class="modal">
+            <h3><i class="fas fa-user-plus" style="color:#11998e;margin-right:0.5rem;"></i>Add Student</h3>
+            <div class="form-group">
+                <label>Student ID</label>
+                <input type="text" id="addStudentId" placeholder="e.g. ST1234">
+            </div>
+            <div class="modal-actions">
+                <button class="btn-secondary" onclick="closeModal('addStudentModal')">Cancel</button>
+                <button class="btn-primary" style="background:var(--org-gradient);" onclick="addStudentToClass()">Add Student</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Upload Note Modal -->
+    <div class="modal-overlay" id="uploadNoteModal">
+        <div class="modal">
+            <h3><i class="fas fa-file-upload" style="color:#11998e;margin-right:0.5rem;"></i>Upload Note</h3>
+            <div class="form-group">
+                <label>Title</label>
+                <input type="text" id="noteTitle" placeholder="Note title">
+            </div>
+            <div class="form-group">
+                <label>File</label>
+                <input type="file" id="noteFile">
+            </div>
+            <div class="modal-actions">
+                <button class="btn-secondary" onclick="closeModal('uploadNoteModal')">Cancel</button>
+                <button class="btn-primary" style="background:var(--org-gradient);" onclick="uploadNote()">Upload</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Upload Assignment Modal -->
+    <div class="modal-overlay" id="uploadAssignModal">
+        <div class="modal">
+            <h3><i class="fas fa-tasks" style="color:#11998e;margin-right:0.5rem;"></i>New Assignment</h3>
+            <div class="form-group">
+                <label>Assignment Title</label>
+                <input type="text" id="assignTitle" placeholder="e.g. Chapter 3 Exercise">
+            </div>
+            <div class="form-group">
+                <label>Description / Instructions</label>
+                <textarea id="assignDesc" placeholder="Instructions for students..."></textarea>
+            </div>
+            <div class="form-group">
+                <label>Total Marks</label>
+                <input type="number" id="assignMarks" placeholder="e.g. 100" min="1">
+            </div>
+            <div class="form-group">
+                <label>Due Date</label>
+                <input type="date" id="assignDue">
+            </div>
+            <div class="form-group">
+                <label>Question Paper <span style="color:#94a3b8;font-weight:400;">(optional — PDF, doc, image)</span></label>
+                <input type="file" id="assignFile" accept=".pdf,.doc,.docx,.png,.jpg,.jpeg">
+            </div>
+            <div class="modal-actions">
+                <button class="btn-secondary" onclick="closeModal('uploadAssignModal')">Cancel</button>
+                <button class="btn-primary" style="background:var(--org-gradient);" onclick="createAssignment()">Create Assignment</button>
+            </div>
+        </div>
+    </div>
+
+<script type="module">
+    import {
+        uploadFile as uploadFileToBackend, getUserFiles, deleteFile, trashFile,
+        restoreFile as restoreFileAPI, emptyTrashAPI, getUserProfile, getOrgInfo,
+        createClass as createClassAPI, getTeacherClasses, deleteClass as deleteClassAPI,
+        getClassStudents, addStudentToClass as addStudentAPI, removeStudentFromClass,
+        getClassAssignments, createAssignment as createAssignmentAPI, deleteAssignment,
+        getAssignmentSubmissions, getClassNotes, uploadClassNote, deleteClassNote,
+        getNotifications as getNotificationsAPI, markAllNotificationsRead,
+        createFolder as createFolderAPI, getUserFolders, getFolderFiles, deleteFolder as deleteFolderAPI,
+        toggleSubmissionChecked, giveMarks, clearAllNotifications
+    } from '/api.js';
+    import { auth } from '/firebase.js';
+
+    let isOrgMode = false;
+    let personalView = 'myfiles';
+    let orgView = 'classes';
+    let personalFiles = [];
+    let currentUser = null;
+    let currentClassId = null;
+    let currentAssignmentId = null;
+    let assignBackTarget = 'class';
+    let currentOrgId = localStorage.getItem('orgId') || null;
+    let currentOrgName = localStorage.getItem('orgName') || '';
+    let classesCache = [];         // [{id, name, subject, ...}]
+    let classStudentsCache = {};   // {classId: [students]}
+    let classAssignmentsCache = {};// {classId: [assignments]}
+    let classNotesCache = {};      // {classId: [notes]}
+    let foldersCache = [];         // [{id, name, file_count}]
+    let currentFolderId = null;    // null = root
+
+    async function loadClasses() {
+        if (!currentUser) return;
+        const result = await getTeacherClasses(currentUser.uid);
+        classesCache = (result.success && result.data.classes) ? result.data.classes : [];
+    }
+
+    async function loadClassDetail(classId) {
+        const [studRes, assignRes, notesRes] = await Promise.all([
+            getClassStudents(classId),
+            getClassAssignments(classId),
+            getClassNotes(classId)
+        ]);
+        classStudentsCache[classId]    = studRes.success   ? studRes.data.students    : [];
+        classAssignmentsCache[classId] = assignRes.success ? assignRes.data.assignments : [];
+        classNotesCache[classId]       = notesRes.success  ? notesRes.data.notes       : [];
+    }
+
+    async function loadNotifications() {
+        if (!currentUser) return [];
+        const r = await getNotificationsAPI(currentUser.uid);
+        return r.success ? r.data.notifications : [];
+    }
+
+    function getFileIcon(filename) {
+        const ext = (filename || '').split('.').pop().toLowerCase();
+        const m = { pdf:'fa-file-pdf', doc:'fa-file-word', docx:'fa-file-word', xls:'fa-file-excel', xlsx:'fa-file-excel', ppt:'fa-file-powerpoint', pptx:'fa-file-powerpoint', jpg:'fa-file-image', jpeg:'fa-file-image', png:'fa-file-image', mp4:'fa-file-video', mp3:'fa-file-audio', zip:'fa-file-archive', txt:'fa-file-alt' };
+        return m[ext] || 'fa-file';
+    }
+    function getFileColor(filename) {
+        const ext = (filename || '').split('.').pop().toLowerCase();
+        const m = { pdf:'#dc2626', doc:'#2563eb', docx:'#2563eb', xls:'#16a34a', xlsx:'#16a34a', ppt:'#ea580c', pptx:'#ea580c', jpg:'#059669', jpeg:'#059669', png:'#059669', mp4:'#7c3aed', mp3:'#db2777', zip:'#64748b', txt:'#475569' };
+        return m[ext] || '#667eea';
+    }
+    function formatDate(d) {
+        const date = new Date(d), now = new Date();
+        const diff = Math.floor((now - date) / 86400000);
+        if (diff === 0) return 'Today';
+        if (diff === 1) return 'Yesterday';
+        if (diff < 7) return diff + ' days ago';
+        return date.toLocaleDateString();
+    }
+
+    function formatFileSize(bytes) {
+        if (!bytes || bytes === 0) return '—';
+        if (bytes < 1024) return bytes + ' B';
+        if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+        if (bytes < 1024 * 1024 * 1024) return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+        return (bytes / (1024 * 1024 * 1024)).toFixed(1) + ' GB';
+    }
+
+    function renderPersonalFiles() {
+        const grid = document.getElementById('fileGrid');
+        let files = [];
+        if (personalView === 'myfiles') files = personalFiles.filter(f => !f.trashed);
+        else if (personalView === 'starred') files = personalFiles.filter(f => f.starred && !f.trashed);
+        else if (personalView === 'trash') files = personalFiles.filter(f => f.trashed);
+        else if (personalView === 'recent') files = personalFiles.filter(f => !f.trashed).sort((a,b) => new Date(b.date)-new Date(a.date));
+
+        // Folder cards shown in root myfiles view
+        let folderHtml = '';
+        if (personalView === 'myfiles' && !currentFolderId) {
+            folderHtml = foldersCache.map(folder => `
+                <div class="file-card" onclick="openFolder(${folder.id},'${folder.name.replace(/'/g,"\\'")}')">
+                    <button class="file-menu" onclick="deleteFolderItem(event,${folder.id})" title="Delete folder"><i class="fas fa-trash" style="color:#ef4444;font-size:0.85rem;"></i></button>
+                    <div class="file-icon"><i class="fas fa-folder" style="color:#f59e0b;"></i></div>
+                    <div class="file-name">${folder.name}</div>
+                    <div class="file-info">${folder.file_count || 0} file${folder.file_count !== 1 ? 's' : ''}</div>
+                </div>
+            `).join('');
+        }
+
+        if (!folderHtml && files.length === 0) {
+            grid.innerHTML = `<div class="empty-state"><i class="fas fa-folder-open"></i><h3>No files here</h3><p>Upload files to get started</p></div>`;
+            return;
+        }
+        grid.innerHTML = folderHtml + files.map(file => `
+            <div class="file-card" data-file-id="${file.id}">
+                ${file.starred && !file.trashed ? '<div class="star-badge"><i class="fas fa-star"></i></div>' : ''}
+                ${file.trashed ? '<div class="trash-badge">Deleted</div>' : ''}
+                <button class="file-menu" onclick="toggleDropdown(event,'${file.id}')"><i class="fas fa-ellipsis-v"></i></button>
+                <div class="dropdown-menu" id="dropdown-${file.id}">
+                    ${!file.trashed ? `
+                        <div class="dropdown-item" onclick="toggleStar('${file.id}')"><i class="fas fa-star"></i><span>${file.starred?'Unstar':'Star'}</span></div>
+                        <div class="dropdown-item" onclick="downloadPersonalFile('${file.id}')"><i class="fas fa-download"></i><span>Download</span></div>
+                        <div class="dropdown-divider"></div>
+                        <div class="dropdown-item danger" onclick="moveToTrash('${file.id}')"><i class="fas fa-trash"></i><span>Move to Trash</span></div>
+                    ` : `
+                        <div class="dropdown-item" onclick="restorePersonalFile('${file.id}')"><i class="fas fa-undo"></i><span>Restore</span></div>
+                        <div class="dropdown-divider"></div>
+                        <div class="dropdown-item danger" onclick="permanentDelete('${file.id}')"><i class="fas fa-trash-alt"></i><span>Delete Permanently</span></div>
+                    `}
+                </div>
+                <div class="file-icon"><i class="fas ${file.icon}" style="color:${file.color};"></i></div>
+                <div class="file-name">${file.name}</div>
+                <div class="file-info">${file.info}</div>
+            </div>
+        `).join('');
+    }
+
+    function toggleDropdown(event, fileId) {
+        event.stopPropagation();
+        event._handledByDropdown = true;
+        const dropdown = document.getElementById('dropdown-' + fileId);
+        const btn = event.currentTarget;
+        document.querySelectorAll('.dropdown-menu').forEach(d => { if (d.id !== 'dropdown-' + fileId) d.classList.remove('show'); });
+        document.querySelectorAll('.file-menu').forEach(b => { if (b !== btn) b.classList.remove('active'); });
+        const isShowing = dropdown.classList.contains('show');
+        if (!isShowing) {
+            document.body.appendChild(dropdown);
+            const rect = btn.getBoundingClientRect();
+            const scrollY = window.scrollY || 0, scrollX = window.scrollX || 0;
+            dropdown.style.position = 'absolute';
+            dropdown.style.top = (rect.bottom + scrollY + 6) + 'px';
+            dropdown.style.left = Math.max(8, rect.right + scrollX - 200) + 'px';
+        }
+        dropdown.classList.toggle('show');
+        btn.classList.toggle('active');
+    }
+    function closeAllDropdowns() {
+        document.querySelectorAll('.dropdown-menu').forEach(d => d.classList.remove('show'));
+        document.querySelectorAll('.file-menu').forEach(b => b.classList.remove('active'));
+    }
+    function toggleStar(fileId) {
+        const f = personalFiles.find(f => f.id === fileId);
+        if (f) { f.starred = !f.starred; renderPersonalFiles(); }
+        closeAllDropdowns();
+    }
+    async function moveToTrash(fileId) {
+        const f = personalFiles.find(f => f.id === fileId);
+        if (f && f.isBackendFile) {
+            const r = await trashFile(f.backendId);
+            if (r.success) { f.trashed = true; f.starred = false; renderPersonalFiles(); }
+            else alert('Failed: ' + (r.error || 'Unknown error'));
+        }
+        closeAllDropdowns();
+    }
+    async function restorePersonalFile(fileId) {
+        const f = personalFiles.find(f => f.id === fileId);
+        if (f && f.isBackendFile) {
+            const r = await restoreFileAPI(f.backendId);
+            if (r.success) { f.trashed = false; renderPersonalFiles(); }
+        }
+        closeAllDropdowns();
+    }
+    async function permanentDelete(fileId) {
+        const f = personalFiles.find(f => f.id === fileId);
+        if (!f) return;
+        if (confirm('Permanently delete this file? This cannot be undone.')) {
+            const r = await deleteFile(f.backendId);
+            if (r.success) { personalFiles = personalFiles.filter(x => x.id !== fileId); renderPersonalFiles(); }
+            else alert('Failed: ' + (r.error || 'Unknown error'));
+        }
+        closeAllDropdowns();
+    }
+    function downloadPersonalFile(fileId) {
+        const f = personalFiles.find(f => f.id === fileId);
+        if (f && f.isBackendFile) {
+            const url = f.publicUrl || 'http://127.0.0.1:5000/api/files/download/' + f.backendId;
+            window.open(url, '_blank');
+        }
+        closeAllDropdowns();
+    }
+    async function emptyPersonalTrash() {
+        const trashed = personalFiles.filter(f => f.trashed);
+        if (trashed.length === 0) { alert('Trash is already empty.'); return; }
+        if (!confirm('Permanently delete all ' + trashed.length + ' item(s)?')) return;
+        const r = await emptyTrashAPI(currentUser.uid);
+        if (r.success) { await loadPersonalFiles(); renderPersonalFiles(); }
+        else alert('Failed: ' + (r.error || 'Unknown error'));
+    }
+    async function uploadPersonalFile() {
+        if (!currentUser) { alert('Please login first'); return; }
+        const input = document.createElement('input');
+        input.type = 'file'; input.multiple = true;
+        input.onchange = async function(e) {
+            const files = Array.from(e.target.files);
+            if (!files.length) return;
+            const msg = document.createElement('div');
+            msg.style.cssText = 'position:fixed;top:20px;right:20px;background:#667eea;color:white;padding:1rem 2rem;border-radius:8px;z-index:1000;';
+            msg.textContent = 'Uploading...'; document.body.appendChild(msg);
+            let ok = 0;
+            for (const file of files) { const r = await uploadFileToBackend(file, currentUser.uid, null, 'teacher'); if (r.success) ok++; }
+            document.body.removeChild(msg);
+            if (ok > 0) { await loadPersonalFiles(); renderPersonalFiles(); }
+            else alert('Upload failed.');
+        };
+        input.click();
+    }
+    function createPersonalFolder() {
+        const name = prompt('Folder name:');
+        if (!name || !name.trim()) return;
+        createFolderAPI(currentUser.uid, name.trim()).then(async r => {
+            if (r.success) { await loadPersonalFiles(); renderPersonalFiles(); }
+            else alert('Failed: ' + (r.data?.error || 'Unknown error'));
+        });
+    }
+
+    async function loadPersonalFiles() {
+        if (!currentUser) return;
+        // Load folders
+        const fr = await getUserFolders(currentUser.uid);
+        foldersCache = (fr.success && fr.data.folders) ? fr.data.folders : [];
+        // Load files
+        const dashboard = currentFolderId ? null : 'teacher';
+        if (currentFolderId) {
+            const r = await getFolderFiles(currentFolderId);
+            personalFiles = (r.success && r.data.files) ? r.data.files.map(f => mapFile(f)) : [];
+        } else {
+            const r = await getUserFiles(currentUser.uid, 'teacher');
+            personalFiles = (r.success && r.data.files) ? r.data.files.map(f => mapFile(f)) : [];
+        }
+    }
+
+    function mapFile(f) {
+        return {
+            id: 'file-' + f.id, backendId: f.id, name: f.filename, type: 'file',
+            icon: getFileIcon(f.filename), color: getFileColor(f.filename),
+            info: formatFileSize(f.file_size) + ' · ' + formatDate(f.upload_time),
+            starred: false, trashed: f.trashed || false, date: f.upload_time,
+            isBackendFile: true, publicUrl: f.public_url || null
+        };
+    }
+
+    function switchPersonalView(view, el) {
+        personalView = view;
+        document.querySelectorAll('#personalNav .sidebar-item').forEach(i => i.classList.remove('active'));
+        if (el) el.classList.add('active');
+        const titles = { myfiles:'My Files', recent:'Recent', starred:'Starred', trash:'Trash' };
+        document.getElementById('contentTitle').textContent = titles[view] || view;
+        document.getElementById('uploadBtn').style.display = view === 'myfiles' ? '' : 'none';
+        document.getElementById('newFolderBtn').style.display = view === 'myfiles' ? '' : 'none';
+        document.getElementById('emptyTrashBtn').style.display = view === 'trash' ? 'flex' : 'none';
+        renderPersonalFiles();
+    }
+
+    function renderClasses() {
+        const grid = document.getElementById('classesGrid');
+        const icons = ['fa-calculator','fa-flask','fa-laptop-code','fa-book','fa-atom','fa-globe'];
+        if (classesCache.length === 0) {
+            grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1;"><i class="fas fa-chalkboard-teacher"></i><h3>No classes yet</h3><p>Create your first class to get started</p></div>`;
+            return;
+        }
+        grid.innerHTML = classesCache.map((cls, i) => `
+            <div class="class-card" onclick="openClass('${cls.id}')">
+                <div class="class-actions">
+                    <button class="class-action-btn danger" onclick="deleteClassItem(event,'${cls.id}')"><i class="fas fa-trash"></i></button>
+                </div>
+                <div class="class-icon"><i class="fas ${icons[i % icons.length]}"></i></div>
+                <div class="class-name">${cls.name}</div>
+                <div class="class-meta">${cls.subject || ''}</div>
+                <div class="class-meta" style="font-size:0.8rem;">${cls.description || ''}</div>
+                <div class="class-stats">
+                    <div class="stat-item"><i class="fas fa-users"></i><span>${cls.student_count || 0} Students</span></div>
+                    <div class="stat-item"><i class="fas fa-tasks"></i><span>${cls.assignment_count || 0} Assignments</span></div>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    async function openClass(classId) {
+        currentClassId = classId;
+        const cls = classesCache.find(c => String(c.id) === String(classId));
+        if (!cls) return;
+        document.getElementById('classDetailTitle').textContent = cls.name;
+        document.getElementById('classesGrid').style.display = 'none';
+        document.getElementById('classDetailView').classList.add('active');
+        document.getElementById('createClassBtn').style.display = 'none';
+        document.getElementById('addStudentBtn').style.display = '';
+        document.getElementById('uploadNoteBtn').style.display = '';
+        document.getElementById('uploadAssignBtn').style.display = '';
+        switchTab('notes', document.querySelector('.tab-btn'));
+
+        // Show loading state
+        document.getElementById('notesGrid').innerHTML = '<div class="empty-state" style="grid-column:1/-1;"><i class="fas fa-spinner fa-spin"></i><h3>Loading...</h3></div>';
+        document.getElementById('assignmentsList').innerHTML = '';
+        document.getElementById('classStudentList').innerHTML = '';
+
+        await loadClassDetail(classId);
+        renderClassNotes(classId);
+        renderClassAssignments(classId);
+        renderClassStudents(classId);
+    }
+
+    function backToClasses() {
+        currentClassId = null;
+        document.getElementById('classDetailView').classList.remove('active');
+        document.getElementById('classesGrid').style.display = 'grid';
+        document.getElementById('createClassBtn').style.display = '';
+        document.getElementById('addStudentBtn').style.display = 'none';
+        document.getElementById('uploadNoteBtn').style.display = 'none';
+        document.getElementById('uploadAssignBtn').style.display = 'none';
+        renderClasses();
+    }
+
+    function switchTab(tab, el) {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+        if (el) el.classList.add('active');
+        document.getElementById('tab-' + tab).classList.add('active');
+    }
+
+    function renderClassNotes(classId) {
+        const grid = document.getElementById('notesGrid');
+        const notes = classNotesCache[classId] || [];
+        if (notes.length === 0) {
+            grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1;"><i class="fas fa-file-alt"></i><h3>No notes yet</h3><p>Upload notes for this class</p></div>`;
+            return;
+        }
+        grid.innerHTML = notes.map(n => `
+            <div class="note-card">
+                <button style="position:absolute;top:0.5rem;right:0.5rem;background:none;border:none;color:#ef4444;cursor:pointer;opacity:0;transition:opacity 0.2s;" class="note-del-btn" onclick="deleteNote(event,${n.id})"><i class="fas fa-times"></i></button>
+                <div class="note-icon"><i class="fas ${getFileIcon(n.file ? n.file.filename : n.title)}"></i></div>
+                <div class="note-name">${n.title}</div>
+                <div class="note-meta">${formatDate(n.created_at)}</div>
+                ${n.file ? `<button onclick="window.open('${n.file.public_url}','_blank')" style="margin-top:0.5rem;background:var(--org-gradient);color:white;border:none;padding:0.25rem 0.75rem;border-radius:6px;font-size:0.8rem;cursor:pointer;">Download</button>` : ''}
+            </div>
+        `).join('');
+        grid.querySelectorAll('.note-card').forEach(card => {
+            card.addEventListener('mouseenter', () => card.querySelector('.note-del-btn').style.opacity = '1');
+            card.addEventListener('mouseleave', () => card.querySelector('.note-del-btn').style.opacity = '0');
+        });
+    }
+
+    function renderClassAssignments(classId) {
+        const list = document.getElementById('assignmentsList');
+        const assignments = classAssignmentsCache[classId] || [];
+        if (assignments.length === 0) {
+            list.innerHTML = `<div class="empty-state"><i class="fas fa-tasks"></i><h3>No assignments yet</h3><p>Create an assignment for this class</p></div>`;
+            return;
+        }
+        list.innerHTML = assignments.map(a => `
+            <div class="assignment-card" onclick="openAssignment(${a.id},'class')">
+                <div class="assignment-icon"><i class="fas fa-tasks"></i></div>
+                <div class="assignment-info">
+                    <div class="assignment-title">${a.title}</div>
+                    <div class="assignment-meta">Due: ${a.due_date || 'No due date'} &bull; ${a.submission_count || 0} submitted</div>
+                    ${a.file ? `<div style="margin-top:0.25rem;"><i class="fas fa-paperclip" style="color:#11998e;font-size:0.8rem;"></i> <span style="font-size:0.8rem;color:#11998e;">Question paper attached</span></div>` : ''}
+                </div>
+                <div style="display:flex;align-items:center;gap:0.5rem;">
+                    <span class="assignment-marks">${a.marks} marks</span>
+                    <button onclick="deleteAssignmentItem(event,${a.id},'${classId}')" style="background:none;border:none;color:#ef4444;cursor:pointer;padding:0.25rem;"><i class="fas fa-trash"></i></button>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    function renderClassStudents(classId) {
+        const list = document.getElementById('classStudentList');
+        const students = classStudentsCache[classId] || [];
+        if (students.length === 0) {
+            list.innerHTML = `<div class="empty-state"><i class="fas fa-users"></i><h3>No students yet</h3><p>Add students by their Student ID</p></div>`;
+            return;
+        }
+        list.innerHTML = students.map(s => `
+            <div class="student-row">
+                <div class="student-avatar ${s.status === 'accepted' ? 'submitted-av' : 'pending-av'}">${(s.name||'?').charAt(0).toUpperCase()}</div>
+                <div class="student-name">${s.name}</div>
+                <div class="student-id-tag">${s.student_id || ''}</div>
+                ${s.status === 'pending' ? '<span class="status-badge pending" style="margin-left:auto;">Pending</span>' : '<span class="status-badge submitted" style="margin-left:auto;">Enrolled</span>'}
+                <button onclick="removeStudent(${s.id},'${classId}')" style="background:none;border:none;color:#ef4444;cursor:pointer;margin-left:0.5rem;"><i class="fas fa-user-minus"></i></button>
+            </div>
+        `).join('');
+    }
+
+    async function openAssignment(assignId, from) {
+        assignBackTarget = from;
+        currentAssignmentId = assignId;
+
+        let assignment = null;
+        for (const cid of Object.keys(classAssignmentsCache)) {
+            const a = classAssignmentsCache[cid].find(a => String(a.id) === String(assignId));
+            if (a) { assignment = a; break; }
+        }
+        if (!assignment) return;
+
+        document.getElementById('assignDetailTitle').textContent = assignment.title;
+        document.getElementById('assignDetailMarks').textContent = `Total Marks: ${assignment.marks}`;
+        document.getElementById('submissionPreviewArea').innerHTML = '';
+        document.getElementById('submittedList').innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+        document.getElementById('pendingList').innerHTML = '';
+
+        if (from === 'class') document.getElementById('classDetailView').classList.remove('active');
+        else document.getElementById('allAssignmentsView').classList.remove('active');
+
+        document.getElementById('assignmentDetailView').classList.add('active');
+        ['createClassBtn','addStudentBtn','uploadNoteBtn','uploadAssignBtn'].forEach(id => {
+            document.getElementById(id).style.display = 'none';
+        });
+
+        await refreshSubmissions(assignId, assignment);
+    }
+
+    let submissionsCache = {}; // {assignId: {submitted:[], pending:[]}}
+
+    async function refreshSubmissions(assignId, assignment) {
+        const r = await getAssignmentSubmissions(assignId);
+        if (!r.success) {
+            document.getElementById('submittedList').innerHTML = '<p style="color:#ef4444;">Failed to load submissions</p>';
+            return;
+        }
+        submissionsCache[assignId] = r.data;
+        const { submitted, pending } = r.data;
+        const checkedCount = submitted.filter(s => s.checked).length;
+
+        document.getElementById('submittedCount').textContent =
+            `${submitted.length} student(s) · ${checkedCount} checked`;
+        document.getElementById('pendingCount').textContent = `${pending.length} student(s)`;
+
+        document.getElementById('submittedList').innerHTML = submitted.length === 0
+            ? '<p style="color:#64748b;font-size:0.9rem;">No submissions yet</p>'
+            : submitted.map(s => `
+                <div class="student-row" style="cursor:pointer;" onclick="viewSubmission('${s.id}',${assignId})">
+                    <div class="student-avatar ${s.checked ? 'submitted-av' : 'pending-av'}">${(s.name||'?').charAt(0).toUpperCase()}</div>
+                    <div class="student-name">${s.name}</div>
+                    <div class="student-id-tag">${s.student_id || ''}</div>
+                    <span style="margin-left:auto;display:flex;align-items:center;gap:0.5rem;">
+                        ${s.checked
+                            ? '<span style="background:#d1fae5;color:#065f46;padding:0.2rem 0.6rem;border-radius:20px;font-size:0.8rem;font-weight:600;"><i class="fas fa-check"></i> Checked</span>'
+                            : '<span style="background:#fef3c7;color:#92400e;padding:0.2rem 0.6rem;border-radius:20px;font-size:0.8rem;font-weight:600;"><i class="fas fa-clock"></i> Unchecked</span>'
+                        }
+                    </span>
+                </div>
+            `).join('');
+
+        document.getElementById('pendingList').innerHTML = pending.length === 0
+            ? '<p style="color:#64748b;font-size:0.9rem;">All students submitted</p>'
+            : pending.map(s => `
+                <div class="student-row">
+                    <div class="student-avatar pending-av">${(s.name||'?').charAt(0).toUpperCase()}</div>
+                    <div class="student-name">${s.name}</div>
+                    <div class="student-id-tag">${s.student_id || ''}</div>
+                    <span class="status-badge pending" style="margin-left:auto;">Pending</span>
+                </div>
+            `).join('');
+    }
+
+    function viewSubmission(studentDbId, assignId) {
+        const cache = submissionsCache[assignId];
+        if (!cache) return;
+        const s = cache.submitted.find(x => String(x.id) === String(studentDbId));
+        if (!s) return;
+
+        // Find total marks for this assignment
+        let totalMarks = 100;
+        for (const cid of Object.keys(classAssignmentsCache)) {
+            const a = classAssignmentsCache[cid].find(a => String(a.id) === String(assignId));
+            if (a) { totalMarks = a.marks; break; }
+        }
+
+        const fileObj = s.file;
+        document.getElementById('submissionPreviewArea').innerHTML = `
+            <div class="submission-preview">
+                <h4 style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;">
+                    <span><i class="fas fa-eye" style="color:#11998e;margin-right:0.5rem;"></i>Submission by ${s.name}</span>
+                    <button onclick="toggleCheck(${s.id},${assignId})"
+                        style="background:${s.checked?'#d1fae5':'#fef3c7'};color:${s.checked?'#065f46':'#92400e'};border:none;padding:0.5rem 1rem;border-radius:8px;font-weight:600;cursor:pointer;font-size:0.875rem;">
+                        <i class="fas ${s.checked?'fa-check-circle':'fa-clock'}"></i> ${s.checked?'Checked':'Mark as Checked'}
+                    </button>
+                </h4>
+                ${fileObj ? `
+                <div class="preview-file" style="margin-bottom:1rem;">
+                    <i class="fas ${getFileIcon(fileObj.filename)}" style="color:${getFileColor(fileObj.filename)};font-size:2rem;"></i>
+                    <div class="preview-file-info">
+                        <div class="preview-file-name">${fileObj.filename}</div>
+                        <div class="preview-file-meta">Submitted by ${s.name}</div>
+                    </div>
+                    <button class="btn-primary" style="background:var(--org-gradient);padding:0.5rem 1rem;font-size:0.875rem;" onclick="window.open('${fileObj.public_url}','_blank')">
+                        <i class="fas fa-download"></i> Download
+                    </button>
+                </div>` : '<p style="color:#64748b;margin-bottom:1rem;">No file attached.</p>'}
+                <div style="background:#f8fafc;border-radius:12px;padding:1rem;display:flex;align-items:center;gap:1rem;">
+                    <label style="font-weight:600;color:#475569;white-space:nowrap;">Give Marks:</label>
+                    <input type="number" id="marksInput-${s.id}" value="${s.obtained_marks ?? ''}" min="0" max="${totalMarks}"
+                        placeholder="0–${totalMarks}"
+                        style="width:100px;padding:0.5rem;border:2px solid #e2e8f0;border-radius:8px;font-size:1rem;text-align:center;">
+                    <span style="color:#64748b;font-size:0.9rem;">/ ${totalMarks}</span>
+                    <button onclick="saveMarks(${s.id},${assignId})"
+                        style="background:var(--org-gradient);color:white;border:none;padding:0.5rem 1.25rem;border-radius:8px;font-weight:600;cursor:pointer;">
+                        <i class="fas fa-save"></i> Save
+                    </button>
+                    ${s.obtained_marks != null ? `<span style="background:#d1fae5;color:#065f46;padding:0.25rem 0.75rem;border-radius:20px;font-size:0.875rem;font-weight:600;">${s.obtained_marks}/${totalMarks}</span>` : ''}
+                </div>
+            </div>
+        `;
+    }
+
+    async function saveMarks(studentDbId, assignId) {
+        const input = document.getElementById(`marksInput-${studentDbId}`);
+        const marks = parseInt(input.value);
+        if (isNaN(marks) || marks < 0) { alert('Enter a valid mark'); return; }
+        const r = await giveMarks(assignId, studentDbId, marks);
+        if (r.success) {
+            // Update cache
+            const cache = submissionsCache[assignId];
+            if (cache) {
+                const s = cache.submitted.find(x => String(x.id) === String(studentDbId));
+                if (s) { s.obtained_marks = marks; s.checked = true; }
+            }
+            await refreshSubmissions(assignId, null);
+            viewSubmission(studentDbId, assignId);
+        } else alert('Failed: ' + (r.data?.error || 'Unknown error'));
+    }
+
+    window.saveMarks = saveMarks;
+
+    async function toggleCheck(studentDbId, assignId) {
+        const r = await toggleSubmissionChecked(assignId, studentDbId);
+        if (r.success) {
+            // Update local cache
+            const cache = submissionsCache[assignId];
+            if (cache) {
+                const s = cache.submitted.find(x => String(x.id) === String(studentDbId));
+                if (s) s.checked = r.data.checked;
+            }
+            let assignment = null;
+            for (const cid of Object.keys(classAssignmentsCache)) {
+                const a = classAssignmentsCache[cid].find(a => String(a.id) === String(assignId));
+                if (a) { assignment = a; break; }
+            }
+            await refreshSubmissions(assignId, assignment);
+            document.getElementById('submissionPreviewArea').innerHTML = '';
+        }
+    }
+
+    window.toggleCheck = toggleCheck;
+
+    function backFromAssignment() {
+        document.getElementById('assignmentDetailView').classList.remove('active');
+        if (assignBackTarget === 'class') {
+            document.getElementById('classDetailView').classList.add('active');
+            document.getElementById('addStudentBtn').style.display = '';
+            document.getElementById('uploadNoteBtn').style.display = '';
+            document.getElementById('uploadAssignBtn').style.display = '';
+        } else {
+            document.getElementById('allAssignmentsView').classList.add('active');
+        }
+    }
+
+    async function renderAllAssignments() {
+        const list = document.getElementById('allAssignmentsList');
+        list.innerHTML = '<div class="empty-state"><i class="fas fa-spinner fa-spin"></i><h3>Loading...</h3></div>';
+        await loadClasses();
+        let html = '';
+        for (const cls of classesCache) {
+            const r = await getClassAssignments(cls.id);
+            const assignments = r.success ? r.data.assignments : [];
+            classAssignmentsCache[cls.id] = assignments;
+            if (assignments.length > 0) {
+                html += `<div style="margin-bottom:2rem;"><div class="section-title" style="margin-bottom:1rem;color:#11998e;">${cls.name}</div>`;
+                html += assignments.map(a => `
+                    <div class="assignment-card" onclick="openAssignment(${a.id},'all')">
+                        <div class="assignment-icon"><i class="fas fa-tasks"></i></div>
+                        <div class="assignment-info">
+                            <div class="assignment-title">${a.title}</div>
+                            <div class="assignment-meta">Due: ${a.due_date || 'No due date'} &bull; ${a.submission_count || 0} submitted</div>
+                        </div>
+                        <span class="assignment-marks">${a.marks} marks</span>
+                    </div>
+                `).join('');
+                html += '</div>';
+            }
+        }
+        if (!html) html = `<div class="empty-state"><i class="fas fa-tasks"></i><h3>No assignments yet</h3><p>Create assignments inside your classes</p></div>`;
+        list.innerHTML = html;
+    }
+
+    async function renderAllStudents() {
+        const list = document.getElementById('allStudentsList');
+        list.innerHTML = '<div class="empty-state"><i class="fas fa-spinner fa-spin"></i><h3>Loading...</h3></div>';
+        await loadClasses();
+        let html = '';
+        for (const cls of classesCache) {
+            const r = await getClassStudents(cls.id);
+            const students = r.success ? r.data.students : [];
+            if (students.length > 0) {
+                html += `<div style="margin-bottom:2rem;"><div class="section-title" style="margin-bottom:1rem;color:#11998e;">${cls.name}</div>`;
+                html += students.map(s => `
+                    <div class="student-row">
+                        <div class="student-avatar submitted-av">${(s.name||'?').charAt(0).toUpperCase()}</div>
+                        <div class="student-name">${s.name}</div>
+                        <div class="student-id-tag">${s.student_id || ''}</div>
+                    </div>
+                `).join('');
+                html += '</div>';
+            }
+        }
+        if (!html) html = `<div class="empty-state"><i class="fas fa-users"></i><h3>No students yet</h3><p>Add students to your classes</p></div>`;
+        list.innerHTML = html;
+    }
+
+    async function renderNotifications() {
+        const list = document.getElementById('notificationList');
+        list.innerHTML = '<div class="empty-state"><i class="fas fa-spinner fa-spin"></i></div>';
+        const notifs = await loadNotifications();
+        const unread = notifs.filter(n => !n.is_read).length;
+        document.getElementById('notifBadge').textContent = unread;
+        document.getElementById('notifBadge').style.display = unread > 0 ? 'flex' : 'none';
+        if (notifs.length === 0) {
+            list.innerHTML = `<div class="empty-state"><i class="fas fa-bell"></i><h3>No notifications</h3></div>`;
+            return;
+        }
+        list.innerHTML = `<div style="display:flex;justify-content:flex-end;margin-bottom:0.75rem;">
+            <button onclick="clearNotifs()" style="background:#fee2e2;color:#dc2626;border:none;padding:0.4rem 1rem;border-radius:8px;font-size:0.8rem;font-weight:600;cursor:pointer;">
+                <i class="fas fa-trash"></i> Clear All
+            </button>
+        </div>` + notifs.map(n => `
+            <div class="notif-item ${!n.is_read ? 'unread' : ''}">
+                <div class="notif-icon"><i class="fas fa-bell"></i></div>
+                <div class="notif-text">
+                    <div class="notif-title">${n.title}</div>
+                    <div class="notif-sub">${n.body || ''}</div>
+                </div>
+                <div class="notif-time">${formatDate(n.created_at)}</div>
+            </div>
+        `).join('');
+        if (unread > 0) {
+            await markAllNotificationsRead(currentUser.uid);
+            document.getElementById('notifBadge').style.display = 'none';
+        }
+    }
+
+    async function switchOrgView(view, el) {
+        orgView = view;
+        if (el) {
+            document.querySelectorAll('#orgNav .sidebar-item').forEach(i => i.classList.remove('active'));
+            el.classList.add('active');
+        }
+        const allViews = ['classesGrid','classDetailView','allAssignmentsView','studentsView','notificationsView','assignmentDetailView'];
+        allViews.forEach(id => {
+            const el = document.getElementById(id);
+            if (el.classList.contains('detail-view')) el.classList.remove('active');
+            else el.style.display = 'none';
+        });
+        document.getElementById('createClassBtn').style.display = 'none';
+        document.getElementById('addStudentBtn').style.display = 'none';
+        document.getElementById('uploadNoteBtn').style.display = 'none';
+        document.getElementById('uploadAssignBtn').style.display = 'none';
+        currentClassId = null;
+
+        const titles = { classes:'My Classes', assignments:'Assignments', students:'Students', notifications:'Notifications' };
+        document.getElementById('contentTitle').textContent = titles[view] || view;
+
+        if (view === 'classes') {
+            document.getElementById('classesGrid').style.display = 'grid';
+            document.getElementById('createClassBtn').style.display = '';
+            await loadClasses();
+            renderClasses();
+        } else if (view === 'assignments') {
+            document.getElementById('allAssignmentsView').classList.add('active');
+            renderAllAssignments();
+        } else if (view === 'students') {
+            document.getElementById('studentsView').classList.add('active');
+            renderAllStudents();
+        } else if (view === 'notifications') {
+            document.getElementById('notificationsView').classList.add('active');
+            renderNotifications();
+        }
+    }
+
+    function toggleDashboard() {
+        isOrgMode = !isOrgMode;
+        document.body.classList.toggle('org-mode', isOrgMode);
+        document.getElementById('toggleSwitch').classList.toggle('active', isOrgMode);
+        document.getElementById('personalLabel').classList.toggle('active', !isOrgMode);
+        document.getElementById('orgLabel').classList.toggle('active', isOrgMode);
+        document.getElementById('personalNav').style.display = isOrgMode ? 'none' : '';
+        document.getElementById('orgNav').style.display = isOrgMode ? '' : 'none';
+        document.getElementById('notifBtn').style.display = isOrgMode ? '' : 'none';
+        document.getElementById('fileGrid').style.display = isOrgMode ? 'none' : 'grid';
+        document.getElementById('uploadBtn').style.display = isOrgMode ? 'none' : '';
+        document.getElementById('newFolderBtn').style.display = isOrgMode ? 'none' : '';
+        document.getElementById('emptyTrashBtn').style.display = 'none';
+
+        if (isOrgMode) {
+            switchOrgView('classes', document.querySelector('#orgNav .sidebar-item'));
+        } else {
+            ['classesGrid','classDetailView','allAssignmentsView','studentsView','notificationsView','assignmentDetailView'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el.classList.contains('detail-view')) el.classList.remove('active');
+                else el.style.display = 'none';
+            });
+            document.getElementById('createClassBtn').style.display = 'none';
+            document.getElementById('addStudentBtn').style.display = 'none';
+            document.getElementById('uploadNoteBtn').style.display = 'none';
+            document.getElementById('uploadAssignBtn').style.display = 'none';
+            document.getElementById('contentTitle').textContent = 'My Files';
+            document.getElementById('fileGrid').style.display = 'grid';
+            document.getElementById('uploadBtn').style.display = '';
+            document.getElementById('newFolderBtn').style.display = '';
+            renderPersonalFiles();
+        }
+    }
+
+    function openCreateClassModal() { document.getElementById('createClassModal').classList.add('show'); }
+    function openAddStudentModal() { document.getElementById('addStudentModal').classList.add('show'); }
+    function openUploadNoteModal() { document.getElementById('uploadNoteModal').classList.add('show'); }
+    function openUploadAssignModal() { document.getElementById('uploadAssignModal').classList.add('show'); }
+    function closeModal(id) { document.getElementById(id).classList.remove('show'); }
+
+    async function createClass() {
+        const name    = document.getElementById('newClassName').value.trim();
+        const subject = document.getElementById('newClassSubject').value.trim();
+        const desc    = document.getElementById('newClassDesc').value.trim();
+        if (!name) { alert('Please enter a class name'); return; }
+        if (!currentOrgId) { alert('No organisation linked to your account.'); return; }
+
+        const r = await createClassAPI(currentUser.uid, currentOrgId, name, subject, desc);
+        if (!r.success) { alert('Failed: ' + (r.data?.error || 'Unknown error')); return; }
+
+        closeModal('createClassModal');
+        document.getElementById('newClassName').value = '';
+        document.getElementById('newClassSubject').value = '';
+        document.getElementById('newClassDesc').value = '';
+        await loadClasses();
+        renderClasses();
+    }
+
+    async function deleteClassItem(event, classId) {
+        event.stopPropagation();
+        if (!confirm('Delete this class? This cannot be undone.')) return;
+        const r = await deleteClassAPI(classId);
+        if (r.success) { await loadClasses(); renderClasses(); }
+        else alert('Failed: ' + (r.data?.error || 'Unknown error'));
+    }
+
+    async function addStudentToClass() {
+        const studentId = document.getElementById('addStudentId').value.trim().toUpperCase();
+        if (!studentId) { alert('Please enter a Student ID'); return; }
+        if (!currentClassId) { alert('No class selected'); return; }
+
+        const r = await addStudentAPI(currentClassId, studentId);
+        if (!r.success) { alert(r.data?.error || 'Failed to add student'); return; }
+
+        closeModal('addStudentModal');
+        document.getElementById('addStudentId').value = '';
+        // Refresh students tab
+        const sr = await getClassStudents(currentClassId);
+        classStudentsCache[currentClassId] = sr.success ? sr.data.students : [];
+        renderClassStudents(currentClassId);
+        alert(`Invite sent to ${studentId}. They will see it in their notifications.`);
+    }
+
+    async function removeStudent(studentDbId, classId) {
+        if (!confirm('Remove this student from the class?')) return;
+        const r = await removeStudentFromClass(classId, studentDbId);
+        if (r.success) {
+            const sr = await getClassStudents(classId);
+            classStudentsCache[classId] = sr.success ? sr.data.students : [];
+            renderClassStudents(classId);
+        } else alert('Failed: ' + (r.data?.error || 'Unknown error'));
+    }
+
+    async function uploadNote() {
+        const title     = document.getElementById('noteTitle').value.trim();
+        const fileInput = document.getElementById('noteFile');
+        if (!title) { alert('Please enter a title'); return; }
+        if (!fileInput.files[0]) { alert('Please select a file'); return; }
+        if (!currentClassId) { alert('No class selected'); return; }
+
+        const btn = document.querySelector('#uploadNoteModal .btn-primary');
+        btn.textContent = 'Uploading...'; btn.disabled = true;
+
+        const r = await uploadClassNote(currentClassId, fileInput.files[0], currentUser.uid, title);
+        btn.textContent = 'Upload'; btn.disabled = false;
+
+        if (!r.success) { alert('Failed: ' + (r.data?.error || 'Unknown error')); return; }
+
+        closeModal('uploadNoteModal');
+        document.getElementById('noteTitle').value = '';
+        fileInput.value = '';
+        const nr = await getClassNotes(currentClassId);
+        classNotesCache[currentClassId] = nr.success ? nr.data.notes : [];
+        renderClassNotes(currentClassId);
+    }
+
+    async function deleteNote(event, noteId) {
+        event.stopPropagation();
+        if (!confirm('Delete this note?')) return;
+        const r = await deleteClassNote(noteId);
+        if (r.success) {
+            const nr = await getClassNotes(currentClassId);
+            classNotesCache[currentClassId] = nr.success ? nr.data.notes : [];
+            renderClassNotes(currentClassId);
+        } else alert('Failed: ' + (r.data?.error || 'Unknown error'));
+    }
+
+    async function createAssignment() {
+        const title = document.getElementById('assignTitle').value.trim();
+        const desc  = document.getElementById('assignDesc').value.trim();
+        const marks = document.getElementById('assignMarks').value;
+        const due   = document.getElementById('assignDue').value;
+        const fileInput = document.getElementById('assignFile');
+        if (!title || !marks) { alert('Please fill in title and marks'); return; }
+        if (!currentClassId) { alert('No class selected'); return; }
+
+        const btn = document.querySelector('#uploadAssignModal .btn-primary');
+        btn.textContent = 'Creating...'; btn.disabled = true;
+
+        let r;
+        if (fileInput.files[0]) {
+            // Send as multipart with file
+            const formData = new FormData();
+            formData.append('title', title);
+            formData.append('description', desc);
+            formData.append('marks', marks);
+            formData.append('due_date', due);
+            formData.append('firebase_uid', currentUser.uid);
+            formData.append('file', fileInput.files[0]);
+            try {
+                const res = await fetch(`http://127.0.0.1:5000/api/classes/${currentClassId}/assignments`, {
+                    method: 'POST', body: formData
+                });
+                const data = await res.json();
+                r = { success: res.ok, data };
+            } catch (e) {
+                r = { success: false, data: { error: e.message } };
+            }
+        } else {
+            r = await createAssignmentAPI(currentClassId, title, desc, parseInt(marks), due);
+        }
+
+        btn.textContent = 'Create Assignment'; btn.disabled = false;
+        if (!r.success) { alert('Failed: ' + (r.data?.error || 'Unknown error')); return; }
+
+        closeModal('uploadAssignModal');
+        document.getElementById('assignTitle').value = '';
+        document.getElementById('assignDesc').value = '';
+        document.getElementById('assignMarks').value = '';
+        document.getElementById('assignDue').value = '';
+        fileInput.value = '';
+        const ar = await getClassAssignments(currentClassId);
+        classAssignmentsCache[currentClassId] = ar.success ? ar.data.assignments : [];
+        renderClassAssignments(currentClassId);
+    }
+
+    async function deleteAssignmentItem(event, assignId, classId) {
+        event.stopPropagation();
+        if (!confirm('Delete this assignment?')) return;
+        const r = await deleteAssignment(assignId);
+        if (r.success) {
+            const ar = await getClassAssignments(classId);
+            classAssignmentsCache[classId] = ar.success ? ar.data.assignments : [];
+            renderClassAssignments(classId);
+        } else alert('Failed: ' + (r.data?.error || 'Unknown error'));
+    }
+
+    function logout() {
+        if (confirm('Are you sure you want to logout?')) {
+            auth.signOut().then(() => { localStorage.clear(); window.location.href = 'landing-page.html'; });
+        }
+    }
+
+    document.addEventListener('click', function(e) {
+        if (e._handledByDropdown) return;
+        if (!e.target.closest('.file-menu') && !e.target.closest('.dropdown-menu')) closeAllDropdowns();
+        if (e.target.classList.contains('modal-overlay')) e.target.classList.remove('show');
+    });
+
+    window.toggleDashboard = toggleDashboard;
+    window.switchPersonalView = switchPersonalView;
+    window.switchOrgView = switchOrgView;
+    window.toggleDropdown = toggleDropdown;
+    window.toggleStar = toggleStar;
+    window.moveToTrash = moveToTrash;
+    window.restorePersonalFile = restorePersonalFile;
+    window.permanentDelete = permanentDelete;
+    window.downloadPersonalFile = downloadPersonalFile;
+    window.emptyPersonalTrash = emptyPersonalTrash;
+    window.uploadPersonalFile = uploadPersonalFile;
+    window.createPersonalFolder = createPersonalFolder;
+    window.openCreateClassModal = openCreateClassModal;
+    window.openAddStudentModal = openAddStudentModal;
+    window.openUploadNoteModal = openUploadNoteModal;
+    window.openUploadAssignModal = openUploadAssignModal;
+    window.closeModal = closeModal;
+    window.createClass = createClass;
+    window.deleteClassItem = deleteClassItem;
+    window.addStudentToClass = addStudentToClass;
+    window.removeStudent = removeStudent;
+    window.uploadNote = uploadNote;
+    window.deleteNote = deleteNote;
+    window.createAssignment = createAssignment;
+    window.deleteAssignmentItem = deleteAssignmentItem;
+    window.openClass = openClass;
+    window.backToClasses = backToClasses;
+    window.switchTab = switchTab;
+    window.openAssignment = openAssignment;
+    window.backFromAssignment = backFromAssignment;
+    window.viewSubmission = viewSubmission;
+    window.toggleCheck = toggleCheck;
+    window.logout = logout;
+
+    async function openFolder(folderId, folderName) {
+        currentFolderId = folderId;
+        document.getElementById('contentTitle').textContent = folderName;
+        document.getElementById('uploadBtn').style.display = '';
+        document.getElementById('newFolderBtn').style.display = 'none';
+        // Add back button dynamically
+        let backBtn = document.getElementById('folderBackBtn');
+        if (!backBtn) {
+            backBtn = document.createElement('button');
+            backBtn.id = 'folderBackBtn';
+            backBtn.className = 'btn-secondary';
+            backBtn.innerHTML = '<i class="fas fa-arrow-left"></i> Back';
+            backBtn.onclick = closeFolderView;
+            document.getElementById('actionButtons').prepend(backBtn);
+        }
+        await loadPersonalFiles();
+        renderPersonalFiles();
+    }
+
+    async function closeFolderView() {
+        currentFolderId = null;
+        document.getElementById('contentTitle').textContent = 'My Files';
+        document.getElementById('newFolderBtn').style.display = '';
+        const backBtn = document.getElementById('folderBackBtn');
+        if (backBtn) backBtn.remove();
+        await loadPersonalFiles();
+        renderPersonalFiles();
+    }
+
+    async function deleteFolderItem(event, folderId) {
+        event.stopPropagation();
+        if (!confirm('Delete this folder? Files inside will be moved to trash.')) return;
+        const r = await deleteFolderAPI(folderId);
+        if (r.success) { await loadPersonalFiles(); renderPersonalFiles(); }
+        else alert('Failed: ' + (r.data?.error || 'Unknown error'));
+    }
+
+    // ── Profile Modal ─────────────────────────────────────────────────────────
+    function openProfileModal() {
+        const name  = currentUser.displayName || localStorage.getItem('userName') || '';
+        const email = currentUser.email || '';
+        const role  = 'Teacher';
+        const org   = currentOrgName || localStorage.getItem('orgName') || '—';
+        document.getElementById('profileModal').classList.add('show');
+        document.getElementById('profileContent').innerHTML = `
+            <div style="text-align:center;margin-bottom:1.5rem;">
+                <div style="width:80px;height:80px;border-radius:50%;background:var(--org-gradient);display:flex;align-items:center;justify-content:center;font-size:2rem;color:white;margin:0 auto 1rem;">${(name||email).charAt(0).toUpperCase()}</div>
+                <div style="font-size:1.25rem;font-weight:700;color:#1e293b;">${name || email}</div>
+                <div style="font-size:0.875rem;color:#64748b;">${email}</div>
+            </div>
+            <div style="background:#f8fafc;border-radius:12px;padding:1rem;margin-bottom:1rem;">
+                <div style="display:flex;justify-content:space-between;padding:0.5rem 0;border-bottom:1px solid #e2e8f0;"><span style="color:#64748b;">Role</span><span style="font-weight:600;">${role}</span></div>
+                <div style="display:flex;justify-content:space-between;padding:0.5rem 0;"><span style="color:#64748b;">Organisation</span><span style="font-weight:600;">${org}</span></div>
+            </div>
+            <div class="form-group">
+                <label>Display Name</label>
+                <input type="text" id="profileNameInput" value="${name}" placeholder="Your name">
+            </div>
+            <div class="modal-actions">
+                <button class="btn-secondary" onclick="closeModal('profileModal')">Close</button>
+                <button class="btn-primary" style="background:var(--org-gradient);" onclick="saveProfile()">Save</button>
+            </div>
+        `;
+    }
+
+    async function saveProfile() {
+        const newName = document.getElementById('profileNameInput').value.trim();
+        if (!newName) return;
+        const { updateUserProfile } = await import('/api.js');
+        const r = await updateUserProfile(currentUser.uid, { name: newName });
+        if (r.success) {
+            localStorage.setItem('userName', newName);
+            document.getElementById('teacherNameDisplay').textContent = newName;
+            closeModal('profileModal');
+        } else alert('Failed to update: ' + (r.data?.error || 'Unknown error'));
+    }
+
+    window.openProfileModal = openProfileModal;
+    window.saveProfile = saveProfile;
+    window.openFolder = openFolder;
+    window.closeFolderView = closeFolderView;
+    window.deleteFolderItem = deleteFolderItem;
+
+    async function updateStorageBar() {
+        if (!currentUser) return;
+        const { getStorageUsage } = await import('/api.js');
+        const r = await getStorageUsage(currentUser.uid);
+        if (!r.success) return;
+        const used = r.data.used_bytes || 0;
+        const limit = 15 * 1024 * 1024 * 1024; // 15 GB
+        const pct = Math.min((used / limit) * 100, 100).toFixed(1);
+        const fmt = b => b < 1024 ? b + ' B' : b < 1048576 ? (b/1024).toFixed(1)+' KB' : b < 1073741824 ? (b/1048576).toFixed(1)+' MB' : (b/1073741824).toFixed(2)+' GB';
+        document.getElementById('storageText').textContent = `${fmt(used)} of 15 GB`;
+        document.getElementById('storageBar').style.width = pct + '%';
+        document.getElementById('storageBar').style.background = pct > 80 ? 'linear-gradient(135deg,#ef4444,#dc2626)' : 'var(--primary-gradient)';
+    }
+
+    let searchTimeout = null;
+    function handleSearch(query) {
+        clearTimeout(searchTimeout);
+        if (isOrgMode) return; // search only in personal mode for now
+        searchTimeout = setTimeout(async () => {
+            if (!query.trim()) { await loadPersonalFiles(); renderPersonalFiles(); return; }
+            const { searchFiles } = await import('/api.js');
+            const r = await searchFiles(currentUser.uid, query, 'teacher');
+            if (r.success) {
+                personalFiles = r.data.files.map(f => ({
+                    id: 'file-' + f.id, backendId: f.id, name: f.filename, type: 'file',
+                    icon: getFileIcon(f.filename), color: getFileColor(f.filename),
+                    info: formatFileSize(f.file_size) + ' · ' + formatDate(f.upload_time),
+                    starred: false, trashed: f.trashed || false, date: f.upload_time,
+                    isBackendFile: true, publicUrl: f.public_url || null
+                }));
+                renderPersonalFiles();
+            }
+        }, 350);
+    }
+
+    async function openNotifPanel() {
+        document.getElementById('notifPanel').style.right = '0';
+        document.getElementById('notifOverlay').style.display = 'block';
+        const list = document.getElementById('notifPanelList');
+        list.innerHTML = '<div style="text-align:center;padding:2rem;color:#64748b;"><i class="fas fa-spinner fa-spin"></i></div>';
+        const notifs = await loadNotifications();
+        if (notifs.length === 0) {
+            list.innerHTML = '<div style="text-align:center;padding:2rem;color:#64748b;"><i class="fas fa-bell" style="font-size:2rem;margin-bottom:0.5rem;display:block;"></i>No notifications</div>';
+            return;
+        }
+        list.innerHTML = `<div style="display:flex;justify-content:flex-end;margin-bottom:0.75rem;">
+            <button onclick="clearNotifs()" style="background:#fee2e2;color:#dc2626;border:none;padding:0.4rem 1rem;border-radius:8px;font-size:0.8rem;font-weight:600;cursor:pointer;">
+                <i class="fas fa-trash"></i> Clear All
+            </button>
+        </div>` + notifs.map(n => `
+            <div style="padding:1rem;border-radius:12px;margin-bottom:0.75rem;background:${!n.is_read?'#f0fdf9':'#f8fafc'};border:1px solid ${!n.is_read?'#a7f3d0':'#e2e8f0'};">
+                <div style="font-weight:600;color:#1e293b;font-size:0.9rem;">${n.title}</div>
+                <div style="font-size:0.8rem;color:#64748b;margin-top:0.2rem;">${n.body || ''}</div>
+                <div style="font-size:0.75rem;color:#94a3b8;margin-top:0.25rem;">${formatDate(n.created_at)}</div>
+            </div>
+        `).join('');
+        if (notifs.some(n => !n.is_read)) {
+            await markAllNotificationsRead(currentUser.uid);
+            document.getElementById('notifBadge').style.display = 'none';
+        }
+    }
+
+    async function clearNotifs() {
+        if (!confirm('Clear all notifications?')) return;
+        const r = await clearAllNotifications(currentUser.uid);
+        if (r.success) {
+            // Refresh whichever view is active
+            if (document.getElementById('notifPanel').style.right === '0px') {
+                openNotifPanel();
+            } else {
+                renderNotifications();
+            }
+        }
+    }
+
+    function closeNotifPanel() {
+        document.getElementById('notifPanel').style.right = '-420px';
+        document.getElementById('notifOverlay').style.display = 'none';
+    }
+
+    window.openNotifPanel = openNotifPanel;
+    window.closeNotifPanel = closeNotifPanel;
+    window.handleSearch = handleSearch;
+    window.clearNotifs = clearNotifs;
+    window.saveMarks = saveMarks;
+
+    auth.onAuthStateChanged(async user => {
+        if (!user) { window.location.href = 'teacher-auth.html'; return; }
+        currentUser = user;
+        document.getElementById('teacherNameDisplay').textContent = user.displayName || user.email;
+
+        const profile = await getUserProfile(user.uid);
+        if (profile.success && profile.data.org_id) {
+            currentOrgId = profile.data.org_id;
+            localStorage.setItem('orgId', currentOrgId);
+            const orgInfo = await getOrgInfo(currentOrgId);
+            if (orgInfo.success) {
+                currentOrgName = orgInfo.data.name;
+                localStorage.setItem('orgName', currentOrgName);
+            }
+        }
+
+        const notifs = await loadNotifications();
+        const unread = notifs.filter(n => !n.is_read).length;
+        if (unread > 0) { document.getElementById('notifBadge').textContent = unread; document.getElementById('notifBadge').style.display = 'flex'; }
+        await loadPersonalFiles();
+        renderPersonalFiles();
+        updateStorageBar();
+        loadClasses(); // pre-load classes cache in background
+    });
+</script>
+</body>
+</html>
+

@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Profile - Sky Vault</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+        }
+
+        .profile-container {
+            width: 100%;
+            max-width: 600px;
+            background: #ffffff;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .profile-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .profile-header h2 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .profile-header p {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .profile-avatar {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            font-size: 40px;
+            color: white;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            display: block;
+            color: #333;
+        }
+
+        .input-with-icon {
+            position: relative;
+        }
+
+        .input-with-icon i {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #888;
+        }
+
+        .input-with-icon input {
+            width: 100%;
+            padding: 12px 12px 12px 40px;
+            border-radius: 8px;
+            border: 2px solid #e0e0e0;
+            outline: none;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        .input-with-icon input:focus {
+            border-color: #667eea;
+        }
+
+        .input-with-icon input:disabled {
+            background: #f5f5f5;
+            cursor: not-allowed;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 12px;
+            margin-top: 10px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 15px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .primary-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #fff;
+        }
+
+        .primary-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .secondary-btn {
+            background: #6c757d;
+            color: #fff;
+            margin-top: 10px;
+        }
+
+        .secondary-btn:hover {
+            background: #5a6268;
+        }
+
+        .info-box {
+            margin-top: 20px;
+            padding: 15px;
+            background: #e3f2fd;
+            border-left: 4px solid #2196f3;
+            border-radius: 8px;
+            font-size: 14px;
+            color: #1565c0;
+        }
+
+        .info-box i {
+            margin-right: 8px;
+        }
+
+        .success-message {
+            background: #d4edda;
+            border-left-color: #28a745;
+            color: #155724;
+            display: none;
+            margin-bottom: 20px;
+        }
+
+        .error-message {
+            background: #f8d7da;
+            border-left-color: #dc3545;
+            color: #721c24;
+            display: none;
+            margin-bottom: 20px;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="profile-container">
+        <div class="profile-header">
+            <div class="profile-avatar">
+                <i class="fas fa-user"></i>
+            </div>
+            <h2>My Profile</h2>
+            <p>Update your personal information</p>
+        </div>
+
+        <div class="success-message info-box" id="successMessage">
+            <i class="fas fa-check-circle"></i>
+            <span>Profile updated successfully!</span>
+        </div>
+
+        <div class="error-message info-box" id="errorMessage">
+            <i class="fas fa-exclamation-circle"></i>
+            <span id="errorText">An error occurred</span>
+        </div>
+
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p style="margin-top: 10px; color: #666;">Loading profile...</p>
+        </div>
+
+        <form id="profile-form">
+            <div class="input-group">
+                <label for="user-name">Full Name</label>
+                <div class="input-with-icon">
+                    <i class="fas fa-user"></i>
+                    <input type="text" id="user-name" placeholder="Loading..." disabled>
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label for="user-email">Email Address</label>
+                <div class="input-with-icon">
+                    <i class="fas fa-envelope"></i>
+                    <input type="email" id="user-email" placeholder="Loading..." disabled>
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label for="user-role">Role</label>
+                <div class="input-with-icon">
+                    <i class="fas fa-id-badge"></i>
+                    <input type="text" id="user-role" disabled>
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label for="user-joined">Member Since</label>
+                <div class="input-with-icon">
+                    <i class="fas fa-calendar"></i>
+                    <input type="text" id="user-joined" disabled>
+                </div>
+            </div>
+
+            <button type="button" class="btn primary-btn" id="editBtn" onclick="enableEdit()">
+                <i class="fas fa-edit"></i> Edit Profile
+            </button>
+
+            <button type="submit" class="btn primary-btn" id="saveBtn" style="display: none;">
+                <i class="fas fa-save"></i> Save Changes
+            </button>
+
+            <button type="button" class="btn secondary-btn" id="cancelBtn" style="display: none;" onclick="cancelEdit()">
+                <i class="fas fa-times"></i> Cancel
+            </button>
+
+            <button type="button" class="btn secondary-btn" onclick="goBack()">
+                <i class="fas fa-arrow-left"></i> Back to Dashboard
+            </button>
+        </form>
+    </div>
+
+    <script type="module">
+        import { auth, updateProfile, updateEmail } from '/firebase.js';
+        import { getUserProfile, updateUserProfile } from '/api.js';
+
+        let currentUser = null;
+        let firebaseUid = null;
+        let originalData = {};
+
+        // Check if user is logged in
+        window.addEventListener('DOMContentLoaded', async () => {
+            firebaseUid = localStorage.getItem('firebaseUid');
+            
+            if (!firebaseUid) {
+                alert('Please login first');
+                window.location.href = 'user-auth.html';
+                return;
+            }
+
+            await loadUserProfile();
+        });
+
+        // Load user profile
+        async function loadUserProfile() {
+            const loading = document.getElementById('loading');
+            const form = document.getElementById('profile-form');
+            
+            loading.style.display = 'block';
+            form.style.display = 'none';
+
+            try {
+                // Get current Firebase user
+                currentUser = auth.currentUser;
+                
+                // Get profile from backend
+                const result = await getUserProfile(firebaseUid);
+                
+                if (result.success) {
+                    const user = result.data;
+                    
+                    // Store original data
+                    originalData = {
+                        name: user.name || '',
+                        email: user.email || ''
+                    };
+                    
+                    // Populate form with current data
+                    document.getElementById('user-name').value = user.name || '';
+                    document.getElementById('user-email').value = user.email || '';
+                    document.getElementById('user-role').value = user.role || '';
+                    
+                    // Format date
+                    if (user.created_at) {
+                        const date = new Date(user.created_at);
+                        document.getElementById('user-joined').value = date.toLocaleDateString();
+                    }
+                    
+                    loading.style.display = 'none';
+                    form.style.display = 'block';
+                } else {
+                    throw new Error(result.error || 'Failed to load profile');
+                }
+            } catch (error) {
+                console.error('Error loading profile:', error);
+                showError('Failed to load profile: ' + error.message);
+                loading.style.display = 'none';
+            }
+        }
+
+        // Enable edit mode
+        window.enableEdit = function() {
+            document.getElementById('user-name').disabled = false;
+            document.getElementById('user-email').disabled = false;
+            
+            document.getElementById('editBtn').style.display = 'none';
+            document.getElementById('saveBtn').style.display = 'block';
+            document.getElementById('cancelBtn').style.display = 'block';
+        };
+
+        // Cancel edit mode
+        window.cancelEdit = function() {
+            // Restore original values
+            document.getElementById('user-name').value = originalData.name;
+            document.getElementById('user-email').value = originalData.email;
+            
+            // Disable fields
+            document.getElementById('user-name').disabled = true;
+            document.getElementById('user-email').disabled = true;
+            
+            // Toggle buttons
+            document.getElementById('editBtn').style.display = 'block';
+            document.getElementById('saveBtn').style.display = 'none';
+            document.getElementById('cancelBtn').style.display = 'none';
+            
+            // Hide messages
+            document.getElementById('successMessage').style.display = 'none';
+            document.getElementById('errorMessage').style.display = 'none';
+        };
+
+        // Handle form submission
+        document.getElementById('profile-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const name = document.getElementById('user-name').value;
+            const email = document.getElementById('user-email').value;
+            const currentEmail = auth.currentUser?.email;
+            
+            if (!name || !email) {
+                showError('Please fill in all fields');
+                return;
+            }
+
+            // Disable form during update
+            const submitBtn = document.getElementById('saveBtn');
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+
+            try {
+                // Update Firebase profile
+                if (auth.currentUser) {
+                    // Update display name
+                    await updateProfile(auth.currentUser, {
+                        displayName: name
+                    });
+                    
+                    // Update email if changed
+                    if (email !== currentEmail) {
+                        await updateEmail(auth.currentUser, email);
+                    }
+                }
+                
+                // Update backend database
+                const result = await updateUserProfile(firebaseUid, {
+                    name: name,
+                    email: email
+                });
+                
+                if (result.success) {
+                    // Update localStorage
+                    localStorage.setItem('userName', name);
+                    localStorage.setItem('userEmail', email);
+                    
+                    // Update original data
+                    originalData = { name, email };
+                    
+                    // Disable edit mode
+                    document.getElementById('user-name').disabled = true;
+                    document.getElementById('user-email').disabled = true;
+                    document.getElementById('editBtn').style.display = 'block';
+                    document.getElementById('saveBtn').style.display = 'none';
+                    document.getElementById('cancelBtn').style.display = 'none';
+                    
+                    showSuccess();
+                } else {
+                    throw new Error(result.error || 'Failed to update profile');
+                }
+            } catch (error) {
+                console.error('Error updating profile:', error);
+                showError('Failed to update profile: ' + error.message);
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i class="fas fa-save"></i> Save Changes';
+            }
+        });
+
+        function showSuccess() {
+            const successMsg = document.getElementById('successMessage');
+            const errorMsg = document.getElementById('errorMessage');
+            
+            errorMsg.style.display = 'none';
+            successMsg.style.display = 'block';
+            
+            setTimeout(() => {
+                successMsg.style.display = 'none';
+            }, 5000);
+        }
+
+        function showError(message) {
+            const successMsg = document.getElementById('successMessage');
+            const errorMsg = document.getElementById('errorMessage');
+            const errorText = document.getElementById('errorText');
+            
+            successMsg.style.display = 'none';
+            errorText.textContent = message;
+            errorMsg.style.display = 'block';
+            
+            setTimeout(() => {
+                errorMsg.style.display = 'none';
+            }, 5000);
+        }
+
+        window.goBack = function() {
+            const role = localStorage.getItem('userRole');
+            if (role === 'student') {
+                window.location.href = 'student-dashboard.html';
+            } else {
+                window.location.href = 'user-dashboard.html';
+            }
+        };
+    </script>
+</body>
+</html>

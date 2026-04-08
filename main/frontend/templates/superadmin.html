@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sky Vault — Platform Admin</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter','Segoe UI',system-ui,sans-serif;background:#0f172a;color:#e2e8f0;min-height:100vh}
+.header{background:#1e293b;padding:1rem 2rem;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #334155}
+.logo{display:flex;align-items:center;gap:.75rem;font-size:1.3rem;font-weight:800;color:white}
+.logo i{color:#818cf8}
+.platform-badge{background:rgba(239,68,68,.2);border:1px solid rgba(239,68,68,.4);color:#fca5a5;padding:.3rem .8rem;border-radius:20px;font-size:.75rem;font-weight:700}
+/* Lock screen */
+#lockScreen{display:flex;align-items:center;justify-content:center;min-height:calc(100vh - 60px)}
+.lock-card{background:#1e293b;border:1px solid #334155;border-radius:20px;padding:2.5rem;width:100%;max-width:380px;text-align:center}
+.lock-card i{font-size:3rem;color:#818cf8;margin-bottom:1rem}
+.lock-card h2{font-size:1.3rem;font-weight:700;margin-bottom:.5rem}
+.lock-card p{color:#64748b;font-size:.875rem;margin-bottom:1.5rem}
+.lock-input{width:100%;padding:.75rem 1rem;background:#0f172a;border:1px solid #334155;border-radius:10px;color:white;font-size:1rem;outline:none;text-align:center;letter-spacing:.2rem;margin-bottom:1rem}
+.lock-input:focus{border-color:#818cf8}
+.lock-btn{width:100%;padding:.75rem;background:#6366f1;color:white;border:none;border-radius:10px;font-size:.9rem;font-weight:600;cursor:pointer;transition:all .2s}
+.lock-btn:hover{background:#4f46e5}
+.lock-error{color:#f87171;font-size:.8rem;margin-top:.5rem;display:none}
+/* Main panel */
+#mainPanel{display:none;padding:2rem;max-width:1000px;margin:0 auto}
+.section-title{font-size:1.2rem;font-weight:700;color:white;margin-bottom:1.25rem}
+/* Create org form */
+.form-card{background:#1e293b;border:1px solid #334155;border-radius:16px;padding:1.75rem;margin-bottom:2rem}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem}
+.form-group label{display:block;font-size:.75rem;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.5px;margin-bottom:.4rem}
+.form-group input{width:100%;padding:.65rem 1rem;background:#0f172a;border:1px solid #334155;border-radius:10px;color:white;font-size:.875rem;outline:none;transition:border .2s}
+.form-group input:focus{border-color:#818cf8}
+.create-btn{background:#6366f1;color:white;border:none;padding:.7rem 1.5rem;border-radius:10px;font-size:.875rem;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:.5rem;transition:all .2s}
+.create-btn:hover{background:#4f46e5}
+/* Result box */
+.result-box{background:#0f172a;border:1px solid #22c55e;border-radius:12px;padding:1.25rem;margin-top:1rem;display:none}
+.result-box .code{font-size:2rem;font-weight:800;color:#22c55e;letter-spacing:.3rem;text-align:center;margin:.5rem 0}
+.result-box .copy-btn{background:#dcfce7;color:#15803d;border:none;padding:.4rem .9rem;border-radius:8px;font-size:.8rem;font-weight:600;cursor:pointer;display:block;margin:.5rem auto 0}
+/* Orgs table */
+.card{background:#1e293b;border:1px solid #334155;border-radius:16px;overflow:hidden}
+table{width:100%;border-collapse:collapse}
+th{background:#0f172a;padding:.75rem 1.25rem;text-align:left;font-size:.7rem;font-weight:700;color:#475569;text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid #334155}
+td{padding:.75rem 1.25rem;border-bottom:1px solid #1e293b;font-size:.875rem;color:#cbd5e1}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:rgba(255,255,255,.02)}
+.badge-active{background:rgba(34,197,94,.15);color:#86efac;padding:.2rem .6rem;border-radius:20px;font-size:.72rem;font-weight:600}
+.badge-pending{background:rgba(251,191,36,.15);color:#fde68a;padding:.2rem .6rem;border-radius:20px;font-size:.72rem;font-weight:600}
+.code-chip{background:#0f172a;border:1px solid #334155;padding:.2rem .6rem;border-radius:6px;font-family:monospace;font-size:.85rem;color:#a5b4fc;cursor:pointer}
+.code-chip:hover{border-color:#818cf8}
+.empty{text-align:center;padding:3rem;color:#475569}
+.empty i{font-size:2rem;display:block;margin-bottom:.5rem}
+/* Toast */
+.toast{position:fixed;bottom:2rem;right:2rem;background:#1e293b;border:1px solid #334155;color:white;padding:.875rem 1.5rem;border-radius:12px;font-size:.875rem;z-index:9999;display:none;align-items:center;gap:.5rem}
+.toast.show{display:flex}
+.toast.success{border-left:4px solid #22c55e}
+</style>
+</head>
+<body>
+
+<header class="header">
+  <div class="logo"><i class="fas fa-cloud"></i> Sky Vault</div>
+  <span class="platform-badge"><i class="fas fa-shield-alt"></i> Platform Admin</span>
+</header>
+
+<!-- Lock screen -->
+<div id="lockScreen">
+  <div class="lock-card">
+    <i class="fas fa-lock"></i>
+    <h2>Platform Admin Access</h2>
+    <p>This panel is restricted to Sky Vault platform administrators only.</p>
+    <input type="password" class="lock-input" id="secretInput" placeholder="Enter secret key" onkeydown="if(event.key==='Enter')unlock()">
+    <button class="lock-btn" onclick="unlock()"><i class="fas fa-unlock"></i> Unlock</button>
+    <div class="lock-error" id="lockError">Incorrect secret key.</div>
+  </div>
+</div>
+
+<!-- Main panel -->
+<div id="mainPanel">
+  <div class="section-title"><i class="fas fa-plus-circle" style="color:#818cf8"></i> Create New Organisation</div>
+  <div class="form-card">
+    <div class="form-row">
+      <div class="form-group">
+        <label>Organisation Name</label>
+        <input type="text" id="orgName" placeholder="e.g. Springfield High School">
+      </div>
+      <div class="form-group">
+        <label>Contact Email (optional)</label>
+        <input type="email" id="contactEmail" placeholder="admin@school.edu">
+      </div>
+    </div>
+    <button class="create-btn" onclick="createOrg()"><i class="fas fa-building"></i> Create Organisation</button>
+    <div class="result-box" id="resultBox">
+      <div style="text-align:center;color:#94a3b8;font-size:.875rem">Organisation created! Share this code with the admin:</div>
+      <div class="code" id="resultCode">—</div>
+      <div style="text-align:center;color:#64748b;font-size:.8rem" id="resultName"></div>
+      <button class="copy-btn" onclick="copyResult()"><i class="fas fa-copy"></i> Copy Code</button>
+    </div>
+  </div>
+
+  <div class="section-title"><i class="fas fa-list" style="color:#818cf8"></i> All Organisations</div>
+  <div class="card">
+    <table>
+      <thead><tr><th>Name</th><th>Join Code</th><th>Contact Email</th><th>Status</th><th>Created</th></tr></thead>
+      <tbody id="orgsBody"><tr><td colspan="5" class="empty"><i class="fas fa-spinner fa-spin"></i> Loading...</td></tr></tbody>
+    </table>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const API    = 'http://127.0.0.1:5000/api';
+const SECRET = 'skyvault-platform-2026'; // must match PLATFORM_SECRET in backend
+let lastCode = '';
+
+function unlock() {
+    const val = document.getElementById('secretInput').value;
+    if (val === SECRET) {
+        document.getElementById('lockScreen').style.display = 'none';
+        document.getElementById('mainPanel').style.display  = 'block';
+        loadOrgs();
+    } else {
+        document.getElementById('lockError').style.display = 'block';
+    }
+}
+
+async function createOrg() {
+    const name  = document.getElementById('orgName').value.trim();
+    const email = document.getElementById('contactEmail').value.trim();
+    if (!name) { toast('Organisation name is required'); return; }
+
+    const resp = await fetch(`${API}/org/create`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-Platform-Secret': SECRET },
+        body: JSON.stringify({ name, contact_email: email })
+    });
+    const data = await resp.json();
+
+    if (resp.ok) {
+        lastCode = data.code;
+        document.getElementById('resultCode').textContent = data.code;
+        document.getElementById('resultName').textContent = data.name;
+        document.getElementById('resultBox').style.display = 'block';
+        document.getElementById('orgName').value = '';
+        document.getElementById('contactEmail').value = '';
+        toast('Organisation created!', 'success');
+        loadOrgs();
+    } else {
+        toast(data.error || 'Failed to create organisation');
+    }
+}
+
+function copyResult() {
+    navigator.clipboard.writeText(lastCode).then(() => toast('Code copied!', 'success'));
+}
+
+async function loadOrgs() {
+    const resp = await fetch(`${API}/org/all`, {
+        headers: { 'X-Platform-Secret': SECRET }
+    });
+    const data = await resp.json();
+    const tbody = document.getElementById('orgsBody');
+
+    if (!resp.ok || !data.orgs || !data.orgs.length) {
+        tbody.innerHTML = `<tr><td colspan="5" class="empty"><i class="fas fa-building"></i>No organisations yet</td></tr>`;
+        return;
+    }
+
+    tbody.innerHTML = data.orgs.map(o => `
+        <tr>
+            <td><strong>${esc(o.name)}</strong></td>
+            <td><span class="code-chip" onclick="navigator.clipboard.writeText('${o.code}').then(()=>toast('Copied!','success'))" title="Click to copy">${o.code}</span></td>
+            <td>${esc(o.contact_email || '—')}</td>
+            <td><span class="badge-${o.status||'active'}">${o.status||'active'}</span></td>
+            <td>${fmtDate(o.created_at)}</td>
+        </tr>
+    `).join('');
+}
+
+function esc(s) {
+    return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+function fmtDate(iso) {
+    if (!iso) return '—';
+    return new Date(iso).toLocaleDateString('en-GB', { day:'numeric', month:'short', year:'numeric' });
+}
+function toast(msg, type='') {
+    const el = document.getElementById('toast');
+    el.textContent = msg;
+    el.className = `toast show ${type}`;
+    setTimeout(() => el.classList.remove('show'), 3000);
+}
+</script>
+</body>
+</html>

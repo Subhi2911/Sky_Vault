@@ -1,0 +1,21 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.env
+
+# Node
+node_modules/
+dist/
+dist-ssr/
+*.local
+
+# Uploads
+main/Backend/uploads/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Kiro
+.kiro/

@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Login</title>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #f4f6f9;
+        }
+
+        .login-container {
+            width: 100%;
+            max-width: 400px;
+            background: #ffffff;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        h2 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .input-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            font-size: 14px;
+            margin-bottom: 5px;
+            display: block;
+        }
+
+        .input-with-icon {
+            position: relative;
+        }
+
+        .input-with-icon i {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #888;
+        }
+
+        .input-with-icon input {
+            width: 100%;
+            padding: 10px 12px 10px 35px;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+            outline: none;
+        }
+
+        .input-with-icon input:focus {
+            border-color: #007bff;
+        }
+        .signup{
+            padding-top: 10px;
+            display: flex;
+            justify-content: center;
+        }
+        .signup a{
+            text-decoration: none;
+            color: rgb(1, 5, 255);
+            
+        }
+        .signup :hover a{
+            transition: 0.4s;
+            color: red;
+            text-decoration: underline;
+        }
+        .login{
+            padding-top: 10px;
+            display: flex;
+            justify-content: center;
+        }
+        .login a{
+            text-decoration: none;
+            color: rgb(1, 5, 255);
+            
+        }
+        .login :hover a{
+            transition: 0.4s;
+            color: red;
+            text-decoration: underline;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 10px;
+            margin-top: 10px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 15px;
+        }
+
+        .primary-btn {
+            background: #007bff;
+            color: #fff;
+        }
+
+        .primary-btn:hover {
+            background: #0056b3;
+        }
+
+        .google-btn {
+            background: #db4437;
+            color: #fff;
+            margin-top: 10px;
+        }
+
+        .google-btn:hover {
+            background: #c23321;
+        }
+
+        /* .secondary-btn {
+            background: #6c757d;
+            color: #fff;
+        } */
+
+        .warning-box {
+            margin-top: 20px;
+            padding: 12px;
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            border-radius: 8px;
+            font-size: 14px;
+            color: #856404;
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="login-container">
+
+        <form id="Admin-login-form">
+            <h2>Admin Login</h2>
+
+
+            <div class="input-group">
+                <label for="Admin-email">Email</label>
+                <div class="input-with-icon">
+                    <i class="fas fa-envelope"></i>
+                    <input type="email" id="Admin-email" placeholder="Enter your email" required>
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label for="Admin-password">Password</label>
+                <div class="input-with-icon">
+                    <i class="fas fa-lock"></i>
+                    <input type="password" id="Admin-password" placeholder="Enter your password" required>
+                </div>
+            </div>
+
+            <button type="submit" class="btn primary-btn">
+                <i class="fas fa-sign-in-alt"></i> Login
+            </button>
+
+            <button type="button" class="btn google-btn" onclick="signInWithGoogle()">
+                <i class="fab fa-google"></i> Continue with Google
+            </button>
+
+            <!-- <button type="button" class="btn secondary-btn">
+                <i class="fas fa-arrow-left"></i> Back
+            </button> -->
+            <div class="signup">
+                <p>Don't have a account? <a href="#" onclick="showSignup()">Signup</a></p>
+            </div>
+            
+            <div class="signup">
+                <p><a href="#" onclick="showForgotPassword()">Forgot Password?</a></p>
+            </div>
+            
+            <div class="warning-box">
+                <i class="fas fa-exclamation-triangle"></i>
+                <span><strong>Warning:</strong> Unauthorized access attempts are monitored.</span>
+            </div>
+        </form>
+
+
+        <!-- Signup  -->
+    
+        <form id="Admin-signup-form" style="display:none;">
+            <h2>Admin Signup</h2>
+            <div class="input-group">
+                <label for="signup-Admin-Name">Full Name</label>
+                <div class="input-with-icon">
+                    <i class="fas fa-user"></i>
+                    <input type="text" id="signup-Admin-Name" placeholder="Enter your name" required>
+                </div>
+            </div>
+            <div class="input-group">
+                <label for="signup-Admin-email">Email</label>
+                <div class="input-with-icon">
+                    <i class="fas fa-envelope"></i>
+                    <input type="email" id="signup-Admin-email" placeholder="Enter your email" required>
+                </div>
+            </div>
+            <div class="input-group">
+                <label for="signup-Admin-password">Password</label>
+                <div class="input-with-icon">
+                    <i class="fas fa-lock"></i>
+                    <input type="password" id="signup-Admin-password" placeholder="Enter your password" required>
+                </div>
+                <small style="color: #666; font-size: 12px; margin-top: 5px; display: block;">
+                    Password must have: 6+ characters, 1 uppercase, 1 number, 1 special character
+                </small>
+            </div>
+            <div class="input-group">
+                <label for="signup-org-code">Organisation Code</label>
+                <div class="input-with-icon">
+                    <i class="fas fa-key"></i>
+                    <input type="text" id="signup-org-code" placeholder="e.g. SPR001" required style="text-transform:uppercase">
+                </div>
+                <small style="color: #666; font-size: 12px; margin-top: 5px; display: block;">
+                    This code is provided by Sky Vault after your organisation is approved.
+                </small>
+            </div>
+
+            <button type="submit" class="btn primary-btn">
+                <i class="fas fa-sign-in-alt"></i> Sign Up as Admin
+            </button>
+
+            <button type="button" class="btn google-btn" onclick="signInWithGoogle()">
+                <i class="fab fa-google"></i> Continue with Google
+            </button>
+
+            <div class="login">
+                <p>Already have an account? <a href="#" onclick="showLogin()">Login</a></p>
+            </div>
+        </form>
+
+        <!-- Forgot Password Form -->
+        <form id="forgot-password-form" style="display:none;">
+            <h2>Reset Password</h2>
+            <p style="text-align: center; color: #666; margin-bottom: 20px;">Enter your email to receive a password reset link</p>
+            
+            <div class="input-group">
+                <label for="reset-email">Email</label>
+                <div class="input-with-icon">
+                    <i class="fas fa-envelope"></i>
+                    <input type="email" id="reset-email" placeholder="Enter your email" required>
+                </div>
+            </div>
+
+            <button type="submit" class="btn primary-btn">
+                <i class="fas fa-paper-plane"></i> Send Reset Link
+            </button>
+
+            <div class="login">
+                <p>Remember your password? <a href="#" onclick="showLogin()">Back to Login</a></p>
+            </div>
+        </form>
+    </div>
+
+<script type="module">
+    import { auth, signInWithEmailAndPassword, createUserWithEmailAndPassword, googleProvider, signInWithPopup, updateProfile, sendPasswordResetEmail } from '/firebase.js';
+    import { registerUserInBackend } from '/api.js';
+
+    // Password validation function
+    function validatePassword(password) {
+        const minLength = 6;
+        const hasUpperCase = /[A-Z]/.test(password);
+        const hasNumber = /[0-9]/.test(password);
+        const hasSpecialChar = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password);
+        
+        const errors = [];
+        
+        if (password.length < minLength) {
+            errors.push(`• At least ${minLength} characters`);
+        }
+        if (!hasUpperCase) {
+            errors.push('• At least 1 uppercase letter (A-Z)');
+        }
+        if (!hasNumber) {
+            errors.push('• At least 1 number (0-9)');
+        }
+        if (!hasSpecialChar) {
+            errors.push('• At least 1 special character (!@#$%^&*...)');
+        }
+        
+        return {
+            isValid: errors.length === 0,
+            errors: errors
+        };
+    }
+
+    // Login form handler
+    document.getElementById('Admin-login-form').addEventListener("submit", async function (e) {
+        e.preventDefault();
+        
+        const email = document.getElementById('Admin-email').value;
+        const password = document.getElementById('Admin-password').value;
+        
+        if (!email || !password) {
+            alert('Please fill in all fields');
+            return;
+        }
+        
+        try {
+            const userCredential = await signInWithEmailAndPassword(auth, email, password);
+            const user = userCredential.user;
+            
+            localStorage.setItem('userRole', 'admin');
+            localStorage.setItem('userEmail', user.email);
+            localStorage.setItem('userName', user.displayName || user.email);
+            localStorage.setItem('isLoggedIn', 'true');
+            localStorage.setItem('firebaseUid', user.uid);
+            
+            // Fetch org info from backend
+            const profileRes = await fetch(`http://127.0.0.1:5000/api/user/${user.uid}`);
+            const profile = await profileRes.json();
+            if (profile.org_id) {
+                localStorage.setItem('orgId', profile.org_id);
+                const orgRes = await fetch(`http://127.0.0.1:5000/api/org/${profile.org_id}`);
+                const org = await orgRes.json();
+                localStorage.setItem('orgCode', org.code || '');
+                localStorage.setItem('orgName', org.name || '');
+            }
+            
+            if (window.top !== window) {
+                window.top.location.href = 'admin-dashboard.html';
+            } else {
+                window.location.href = 'admin-dashboard.html';
+            }
+            
+        } catch (error) {
+            console.error('Login error:', error);
+            alert('Login failed: ' + error.message);
+        }
+    });
+
+    // Signup form handler
+    document.getElementById('Admin-signup-form').addEventListener("submit", async function (e) {
+        e.preventDefault();
+        
+        const name    = document.getElementById('signup-Admin-Name').value.trim();
+        const email   = document.getElementById('signup-Admin-email').value.trim();
+        const password = document.getElementById('signup-Admin-password').value;
+        const orgCode = document.getElementById('signup-org-code').value.trim().toUpperCase();
+        
+        if (!name || !email || !password || !orgCode) {
+            alert('Please fill in all fields including the Organisation Code.');
+            return;
+        }
+        
+        const passwordValidation = validatePassword(password);
+        if (!passwordValidation.isValid) {
+            alert('❌ Password does not meet requirements:\n\n' + passwordValidation.errors.join('\n'));
+            return;
+        }
+        
+        try {
+            const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+            const user = userCredential.user;
+            await updateProfile(user, { displayName: name });
+
+            const backendResult = await registerUserInBackend(user.uid, email, name, 'admin', orgCode, '');
+            
+            if (backendResult.success) {
+                const d = backendResult.data;
+                localStorage.setItem('userRole',    'admin');
+                localStorage.setItem('userName',    name);
+                localStorage.setItem('userEmail',   email);
+                localStorage.setItem('isLoggedIn',  'true');
+                localStorage.setItem('firebaseUid', user.uid);
+                localStorage.setItem('orgId',       String(d.org_id   || ''));
+                localStorage.setItem('orgCode',     orgCode);
+                // Fetch org name
+                try {
+                    const orgRes = await fetch(`http://127.0.0.1:5000/api/org/${d.org_id}`);
+                    const org = await orgRes.json();
+                    localStorage.setItem('orgName', org.name || '');
+                } catch(_) {}
+                // Redirect — break out of iframe if inside one
+                if (window.top !== window) {
+                    window.top.location.href = 'admin-dashboard.html';
+                } else {
+                    window.location.href = 'admin-dashboard.html';
+                }
+            } else {
+                alert('Signup failed: ' + (backendResult.error || 'Unknown error'));
+            }
+        } catch (error) {
+            console.error('Signup error:', error);
+            if (error.code === 'auth/email-already-in-use') {
+                alert('This email is already registered. Please login instead.');
+                showLogin();
+            } else {
+                alert('Signup failed: ' + error.message);
+            }
+        }
+    });
+
+    // Google Sign-in function
+    window.signInWithGoogle = async function() {
+        try {
+            const result = await signInWithPopup(auth, googleProvider);
+            const user = result.user;
+            
+            localStorage.setItem('userRole', 'admin');
+            localStorage.setItem('userName', user.displayName || user.email);
+            localStorage.setItem('userEmail', user.email);
+            localStorage.setItem('isLoggedIn', 'true');
+            localStorage.setItem('firebaseUid', user.uid);
+
+            // Check if user already has an org
+            const profileRes = await fetch(`http://127.0.0.1:5000/api/user/${user.uid}`);
+            const profile = await profileRes.json();
+
+            if (profile.org_id) {
+                localStorage.setItem('orgId', profile.org_id);
+                const orgRes = await fetch(`http://127.0.0.1:5000/api/org/${profile.org_id}`);
+                const org = await orgRes.json();
+                localStorage.setItem('orgCode', org.code || '');
+                localStorage.setItem('orgName', org.name || '');
+                window.top.location.href = 'admin-dashboard.html';
+            } else {
+                // New admin — create org
+                const orgName = prompt('Enter your Organisation name to create it:');
+                if (!orgName || !orgName.trim()) { alert('Organisation name required.'); return; }
+                const backendResult = await registerUserInBackend(user.uid, user.email, user.displayName || user.email, 'admin', '', orgName.trim());
+                if (backendResult.success) {
+                    const d = backendResult.data;
+                    localStorage.setItem('orgId',   d.org_id   || '');
+                    localStorage.setItem('orgCode', d.org_code || '');
+                    localStorage.setItem('orgName', orgName.trim());
+                    alert(`✅ Organisation "${orgName}" created!\nJoin code: ${d.org_code}`);
+                    window.top.location.href = 'admin-dashboard.html';
+                } else {
+                    alert('Registration failed: ' + (backendResult.error || 'Unknown error'));
+                }
+            }
+        } catch (error) {
+            console.error('Google sign-in error:', error);
+            alert('Google sign-in failed: ' + error.message);
+        }
+    };
+
+    function showSignup() {
+        document.getElementById("Admin-login-form").style.display = "none";
+        document.getElementById("Admin-signup-form").style.display = "block";
+        document.getElementById("forgot-password-form").style.display = "none";
+    }
+
+    function showLogin() {
+        document.getElementById("Admin-signup-form").style.display = "none";
+        document.getElementById("Admin-login-form").style.display = "block";
+        document.getElementById("forgot-password-form").style.display = "none";
+    }
+
+    function showForgotPassword() {
+        document.getElementById("Admin-login-form").style.display = "none";
+        document.getElementById("Admin-signup-form").style.display = "none";
+        document.getElementById("forgot-password-form").style.display = "block";
+    }
+
+    // Forgot Password form handler
+    document.getElementById('forgot-password-form').addEventListener("submit", async function (e) {
+        e.preventDefault();
+        
+        const email = document.getElementById('reset-email').value;
+        
+        if (!email) {
+            alert('Please enter your email');
+            return;
+        }
+        
+        try {
+            await sendPasswordResetEmail(auth, email);
+            alert('Password reset email sent! Please check your inbox.');
+            showLogin();
+        } catch (error) {
+            console.error('Password reset error:', error);
+            if (error.code === 'auth/user-not-found') {
+                alert('No account found with this email address.');
+            } else {
+                alert('Failed to send reset email: ' + error.message);
+            }
+        }
+    });
+
+    // Make functions globally available
+    window.showSignup = showSignup;
+    window.showLogin = showLogin;
+    window.showForgotPassword = showForgotPassword;
+</script>
+</body>
+</html>

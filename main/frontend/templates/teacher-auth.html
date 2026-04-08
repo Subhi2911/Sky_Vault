@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Login</title>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #f4f6f9;
+        }
+
+        .login-container {
+            width: 100%;
+            max-width: 400px;
+            background: #ffffff;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        h2 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .input-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            font-size: 14px;
+            margin-bottom: 5px;
+            display: block;
+        }
+
+        .input-with-icon {
+            position: relative;
+        }
+
+        .input-with-icon i {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #888;
+        }
+
+        .input-with-icon input {
+            width: 100%;
+            padding: 10px 12px 10px 35px;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+            outline: none;
+        }
+
+        .input-with-icon input:focus {
+            border-color: #007bff;
+        }
+        .signup{
+            padding-top: 10px;
+            display: flex;
+            justify-content: center;
+        }
+        .signup a{
+            text-decoration: none;
+            color: rgb(1, 5, 255);
+            
+        }
+        .signup :hover a{
+            transition: 0.4s;
+            color: red;
+            text-decoration: underline;
+        }
+        .login{
+            padding-top: 10px;
+            display: flex;
+            justify-content: center;
+        }
+        .login a{
+            text-decoration: none;
+            color: rgb(1, 5, 255);
+            
+        }
+        .login :hover a{
+            transition: 0.4s;
+            color: red;
+            text-decoration: underline;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 10px;
+            margin-top: 10px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 15px;
+        }
+
+        .primary-btn {
+            background: #007bff;
+            color: #fff;
+        }
+
+        .primary-btn:hover {
+            background: #0056b3;
+        }
+
+        .google-btn {
+            background: #db4437;
+            color: #fff;
+            margin-top: 10px;
+        }
+
+        .google-btn:hover {
+            background: #c23321;
+        }
+
+        .warning-box {
+            margin-top: 20px;
+            padding: 12px;
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            border-radius: 8px;
+            font-size: 14px;
+            color: #856404;
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="login-container">
+
+        <form id="teacher-login-form">
+            <h2>Teacher Login</h2>
+
+            <div class="input-group">
+                <label for="teacher-email">Email</label>
+                <div class="input-with-icon">
+                    <i class="fas fa-envelope"></i>
+                    <input type="email" id="teacher-email" placeholder="Enter your email" required>
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label for="teacher-password">Password</label>
+                <div class="input-with-icon">
+                    <i class="fas fa-lock"></i>
+                    <input type="password" id="teacher-password" placeholder="Enter your password" required>
+                </div>
+            </div>
+
+            <button type="submit" class="btn primary-btn">
+                <i class="fas fa-sign-in-alt"></i> Login
+            </button>
+
+            <button type="button" class="btn google-btn" onclick="signInWithGoogle()">
+                <i class="fab fa-google"></i> Continue with Google
+            </button>
+
+            <div class="signup">
+                <p>Don't have a account? <a href="#" onclick="showSignup()">Signup</a></p>
+            </div>
+            
+            <div class="signup">
+                <p><a href="#" onclick="showForgotPassword()">Forgot Password?</a></p>
+            </div>
+            
+            <div class="warning-box">
+                <i class="fas fa-exclamation-triangle"></i>
+                <span><strong>Warning:</strong> Unauthorized access attempts are monitored.</span>
+            </div>
+        </form>
+
+
+        <!-- Signup  -->
+    
+        <form id="teacher-signup-form" style="display:none;">
+            <h2>Teacher Signup</h2>
+            <div class="input-group">
+                <label for="signup-teacher-Name">Full-Name</label>
+                <div class="input-with-icon">
+                    <i class="fas fa-user"></i>
+                    <input type="text" id="signup-teacher-Name" placeholder="Enter your Name" required>
+                </div>
+            </div>
+            <div class="input-group">
+                <label for="signup-teacher-email">Email</label>
+                <div class="input-with-icon">
+                    <i class="fas fa-envelope"></i>
+                    <input type="email" id="signup-teacher-email" placeholder="Enter your email" required>
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label for="signup-teacher-password">Password</label>
+                <div class="input-with-icon">
+                    <i class="fas fa-lock"></i>
+                    <input type="password" id="signup-teacher-password" placeholder="Enter your password" required>
+                </div>
+                <small style="color: #666; font-size: 12px; margin-top: 5px; display: block;">
+                    Password must have: 6+ characters, 1 uppercase, 1 number, 1 special character
+                </small>
+            </div>
+
+            <button type="submit" class="btn primary-btn">
+                <i class="fas fa-sign-in-alt"></i> Signup
+            </button>
+
+            <button type="button" class="btn google-btn" onclick="signInWithGoogle()">
+                <i class="fab fa-google"></i> Continue with Google
+            </button>
+
+            <div class="login">
+                <p>Already have an account ! <a href="#" onclick="showLogin()">login</a></p>
+            </div>
+        </form>
+
+        <!-- Forgot Password Form -->
+        <form id="forgot-password-form" style="display:none;">
+            <h2>Reset Password</h2>
+            <p style="text-align: center; color: #666; margin-bottom: 20px;">Enter your email to receive a password reset link</p>
+            
+            <div class="input-group">
+                <label for="reset-email">Email</label>
+                <div class="input-with-icon">
+                    <i class="fas fa-envelope"></i>
+                    <input type="email" id="reset-email" placeholder="Enter your email" required>
+                </div>
+            </div>
+
+            <button type="submit" class="btn primary-btn">
+                <i class="fas fa-paper-plane"></i> Send Reset Link
+            </button>
+
+            <div class="login">
+                <p>Remember your password? <a href="#" onclick="showLogin()">Back to Login</a></p>
+            </div>
+        </form>
+    </div>
+
+<script type="module">
+    import { auth, signInWithEmailAndPassword, createUserWithEmailAndPassword, googleProvider, signInWithPopup, updateProfile, sendPasswordResetEmail } from '/firebase.js';
+    import { registerUserInBackend } from '/api.js';
+
+    // Password validation function
+    function validatePassword(password) {
+        const minLength = 6;
+        const hasUpperCase = /[A-Z]/.test(password);
+        const hasNumber = /[0-9]/.test(password);
+        const hasSpecialChar = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password);
+        
+        const errors = [];
+        
+        if (password.length < minLength) {
+            errors.push(`• At least ${minLength} characters`);
+        }
+        if (!hasUpperCase) {
+            errors.push('• At least 1 uppercase letter (A-Z)');
+        }
+        if (!hasNumber) {
+            errors.push('• At least 1 number (0-9)');
+        }
+        if (!hasSpecialChar) {
+            errors.push('• At least 1 special character (!@#$%^&*...)');
+        }
+        
+        return {
+            isValid: errors.length === 0,
+            errors: errors
+        };
+    }
+
+    // Login form handler
+    document.getElementById('teacher-login-form').addEventListener("submit", async function (e) {
+        e.preventDefault();
+        
+        const email = document.getElementById('teacher-email').value;
+        const password = document.getElementById('teacher-password').value;
+
+        if (!email || !password) {
+            alert('Please fill in all fields');
+            return;
+        }
+        
+        try {
+            const userCredential = await signInWithEmailAndPassword(auth, email, password);
+            const user = userCredential.user;
+
+            // Ensure registered in backend
+            await registerUserInBackend(user.uid, user.email, user.displayName || user.email, 'teacher');
+
+            localStorage.setItem('userRole', 'teacher');
+            localStorage.setItem('userEmail', user.email);
+            localStorage.setItem('userName', user.displayName || user.email);
+            localStorage.setItem('isLoggedIn', 'true');
+            localStorage.setItem('firebaseUid', user.uid);
+            
+            if (window.parent && window.parent !== window) {
+                window.parent.location.href = 'teacher-dashboard.html';
+            } else {
+                window.location.href = 'teacher-dashboard.html';
+            }
+            
+        } catch (error) {
+            console.error('Login error:', error);
+            alert('Login failed: ' + error.message);
+        }
+    });
+
+    // Signup form handler
+    document.getElementById('teacher-signup-form').addEventListener("submit", async function (e) {
+        e.preventDefault();
+        
+        const name = document.getElementById('signup-teacher-Name').value;
+        const orgCode = localStorage.getItem('organizationCode') || '';
+        const email = document.getElementById('signup-teacher-email').value;
+        const password = document.getElementById('signup-teacher-password').value;
+        
+        if (!name || !email || !password) {
+            alert('Please fill in all fields');
+            return;
+        }
+
+        const passwordValidation = validatePassword(password);
+        if (!passwordValidation.isValid) {
+            alert('❌ Password does not meet requirements:\n\n' + passwordValidation.errors.join('\n') + '\n\nPlease create a stronger password.');
+            return;
+        }
+        
+        try {
+            const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+            const user = userCredential.user;
+            await updateProfile(user, { displayName: name });
+            const backendResult = await registerUserInBackend(user.uid, email, name, 'teacher', orgCode);
+            if (!backendResult.success) {
+                await user.delete();
+                alert('Signup failed: ' + (backendResult.data?.error || 'Organisation code not found'));
+                return;
+            }
+            localStorage.setItem('userRole', 'teacher');
+            localStorage.setItem('userName', name);
+            localStorage.setItem('userEmail', email);
+            localStorage.setItem('isLoggedIn', 'true');
+            localStorage.setItem('firebaseUid', user.uid);
+            localStorage.setItem('orgId', backendResult.data?.org_id || '');
+            if (window.parent && window.parent !== window) {
+                window.parent.location.href = 'teacher-dashboard.html';
+            } else {
+                window.location.href = 'teacher-dashboard.html';
+            }
+        } catch (error) {
+            alert('Signup failed: ' + error.message);
+        }
+    });
+
+    // Google Sign-in function
+    window.signInWithGoogle = async function() {
+        try {
+            const result = await signInWithPopup(auth, googleProvider);
+            const user = result.user;
+            
+            // Register user in backend database (will check if exists)
+            const backendResult = await registerUserInBackend(
+                user.uid, 
+                user.email, 
+                user.displayName || user.email, 
+                'teacher'
+            );
+            
+            if (!backendResult.success) {
+                console.error('Backend registration failed:', backendResult.error);
+            }
+            
+            // Store user session data
+            localStorage.setItem('userRole', 'teacher');
+            localStorage.setItem('userName', user.displayName || user.email);
+            localStorage.setItem('userEmail', user.email);
+            localStorage.setItem('isLoggedIn', 'true');
+            localStorage.setItem('firebaseUid', user.uid);
+            
+            if (window.parent && window.parent !== window) {
+                window.parent.location.href = 'teacher-dashboard.html';
+            } else {
+                window.location.href = 'teacher-dashboard.html';
+            }
+            
+        } catch (error) {
+            console.error('Google sign-in error:', error);
+            alert('Google sign-in failed: ' + error.message);
+        }
+    };
+
+    function showSignup() {
+        document.getElementById("teacher-login-form").style.display = "none";
+        document.getElementById("teacher-signup-form").style.display = "block";
+        document.getElementById("forgot-password-form").style.display = "none";
+    }
+
+    function showLogin() {
+        document.getElementById("teacher-signup-form").style.display = "none";
+        document.getElementById("teacher-login-form").style.display = "block";
+        document.getElementById("forgot-password-form").style.display = "none";
+    }
+
+    function showForgotPassword() {
+        document.getElementById("teacher-login-form").style.display = "none";
+        document.getElementById("teacher-signup-form").style.display = "none";
+        document.getElementById("forgot-password-form").style.display = "block";
+    }
+
+    // Forgot Password form handler
+    document.getElementById('forgot-password-form').addEventListener("submit", async function (e) {
+        e.preventDefault();
+        
+        const email = document.getElementById('reset-email').value;
+        
+        if (!email) {
+            alert('Please enter your email');
+            return;
+        }
+        
+        try {
+            await sendPasswordResetEmail(auth, email);
+            alert('Password reset email sent! Please check your inbox.');
+            showLogin();
+        } catch (error) {
+            console.error('Password reset error:', error);
+            if (error.code === 'auth/user-not-found') {
+                alert('No account found with this email address.');
+            } else {
+                alert('Failed to send reset email: ' + error.message);
+            }
+        }
+    });
+
+    // Make functions globally available
+    window.showSignup = showSignup;
+    window.showLogin = showLogin;
+    window.showForgotPassword = showForgotPassword;
+</script>
+</body>
+</html>

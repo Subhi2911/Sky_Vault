@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sky Vault — Secure Cloud Storage for Everyone</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--purple:#667eea;--purple2:#764ba2;--dark:#1e293b;--text:#334155;--muted:#64748b;--light:#f8fafc}
+html{scroll-behavior:smooth}
+body{font-family:'Inter','Segoe UI',system-ui,sans-serif;color:var(--text);background:white;overflow-x:hidden}
+
+/* NAV */
+nav{position:fixed;top:0;left:0;right:0;z-index:1000;padding:1rem 2rem;display:flex;justify-content:space-between;align-items:center;transition:all .3s}
+nav.scrolled{background:rgba(255,255,255,.95);backdrop-filter:blur(20px);box-shadow:0 2px 20px rgba(0,0,0,.08)}
+.nav-logo{display:flex;align-items:center;gap:.6rem;font-size:1.4rem;font-weight:800;color:white;text-decoration:none}
+nav.scrolled .nav-logo{color:var(--dark)}
+.nav-logo i{color:#a5b4fc}
+nav.scrolled .nav-logo i{color:var(--purple)}
+.nav-links{display:flex;align-items:center;gap:2rem}
+.nav-links a{color:rgba(255,255,255,.85);text-decoration:none;font-weight:500;font-size:.9rem;transition:color .2s}
+nav.scrolled .nav-links a{color:var(--muted)}
+.nav-links a:hover{color:white}
+nav.scrolled .nav-links a:hover{color:var(--purple)}
+.nav-links a.nav-cta{background:white;color:#667eea !important;padding:.5rem 1.25rem;border-radius:25px;font-weight:700;font-size:.875rem;text-decoration:none;transition:all .2s;display:inline-block}
+nav.scrolled .nav-links a.nav-cta{background:#667eea;color:white !important}
+.nav-links a.nav-cta:hover{transform:translateY(-2px);box-shadow:0 4px 15px rgba(102,126,234,.4);color:#4f46e5 !important}
+nav.scrolled .nav-links a.nav-cta:hover{color:white !important}
+
+/* HERO */
+.hero{min-height:100vh;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);display:flex;align-items:center;justify-content:center;text-align:center;padding:6rem 2rem 4rem;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 20% 50%,rgba(255,255,255,.08) 0%,transparent 50%),radial-gradient(circle at 80% 20%,rgba(255,255,255,.06) 0%,transparent 40%)}
+.hero-content{position:relative;z-index:1;max-width:800px}
+.hero-badge{display:inline-flex;align-items:center;gap:.5rem;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.25);color:white;padding:.4rem 1rem;border-radius:25px;font-size:.8rem;font-weight:600;margin-bottom:1.5rem;backdrop-filter:blur(10px)}
+.hero h1{font-size:clamp(2.5rem,6vw,4.5rem);font-weight:900;color:white;line-height:1.1;margin-bottom:1.5rem;text-shadow:0 4px 30px rgba(0,0,0,.2)}
+.hero h1 span{background:linear-gradient(135deg,#fbbf24,#f59e0b);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero p{font-size:1.2rem;color:rgba(255,255,255,.9);max-width:600px;margin:0 auto 2.5rem;line-height:1.7}
+.hero-btns{display:flex;gap:1rem;justify-content:center;flex-wrap:wrap}
+.btn-hero-primary{background:white;color:var(--purple);padding:.875rem 2rem;border-radius:50px;font-weight:700;font-size:1rem;text-decoration:none;transition:all .3s;box-shadow:0 8px 30px rgba(0,0,0,.2)}
+.btn-hero-primary:hover{transform:translateY(-3px);box-shadow:0 12px 40px rgba(0,0,0,.3)}
+.btn-hero-secondary{background:rgba(255,255,255,.15);color:white;padding:.875rem 2rem;border-radius:50px;font-weight:700;font-size:1rem;text-decoration:none;border:2px solid rgba(255,255,255,.3);transition:all .3s;backdrop-filter:blur(10px)}
+.btn-hero-secondary:hover{background:rgba(255,255,255,.25);transform:translateY(-3px)}
+.hero-stats{display:flex;gap:3rem;justify-content:center;margin-top:4rem;flex-wrap:wrap}
+.hero-stat{text-align:center;color:white}
+.hero-stat-num{font-size:2rem;font-weight:800;display:block}
+.hero-stat-label{font-size:.8rem;opacity:.8;margin-top:.2rem}
+
+/* SECTIONS */
+section{padding:5rem 2rem}
+.container{max-width:1100px;margin:0 auto}
+.section-label{font-size:.75rem;font-weight:700;color:var(--purple);text-transform:uppercase;letter-spacing:2px;margin-bottom:.75rem}
+.section-title{font-size:clamp(1.75rem,4vw,2.5rem);font-weight:800;color:var(--dark);margin-bottom:1rem;line-height:1.2}
+.section-sub{font-size:1.05rem;color:var(--muted);max-width:560px;line-height:1.7}
+.text-center{text-align:center}
+.text-center .section-sub{margin:0 auto}
+
+/* ABOUT */
+.about{background:var(--light)}
+.about-grid{display:grid;grid-template-columns:1fr 1fr;gap:4rem;align-items:center;margin-top:3rem}
+.about-text p{color:var(--muted);line-height:1.8;margin-bottom:1rem;font-size:1rem}
+.about-features{display:grid;gap:1rem;margin-top:1.5rem}
+.about-feature{display:flex;align-items:flex-start;gap:.75rem;padding:1rem;background:white;border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,.05)}
+.about-feature i{color:var(--purple);font-size:1.1rem;margin-top:.1rem;flex-shrink:0}
+.about-feature-text strong{display:block;font-size:.9rem;color:var(--dark);margin-bottom:.2rem}
+.about-feature-text span{font-size:.825rem;color:var(--muted)}
+.about-visual{background:linear-gradient(135deg,#667eea,#764ba2);border-radius:24px;padding:2.5rem;color:white;box-shadow:0 20px 60px rgba(102,126,234,.3)}
+.about-visual-title{font-size:1.1rem;font-weight:700;margin-bottom:1.5rem;opacity:.9}
+.about-visual-item{display:flex;align-items:center;gap:.75rem;padding:.75rem;background:rgba(255,255,255,.1);border-radius:10px;margin-bottom:.75rem;font-size:.875rem}
+.about-visual-item i{width:20px;text-align:center}
+
+/* FEATURES */
+.features-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:1.5rem;margin-top:3rem}
+.feature-card{background:white;border:1px solid #e2e8f0;border-radius:20px;padding:2rem;transition:all .3s}
+.feature-card:hover{transform:translateY(-6px);box-shadow:0 20px 50px rgba(0,0,0,.1);border-color:var(--purple)}
+.feature-icon{width:52px;height:52px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:1.3rem;margin-bottom:1.25rem}
+.fi-purple{background:#ede9fe;color:#7c3aed}
+.fi-blue{background:#dbeafe;color:#2563eb}
+.fi-green{background:#dcfce7;color:#16a34a}
+.fi-orange{background:#ffedd5;color:#ea580c}
+.fi-pink{background:#fce7f3;color:#be185d}
+.fi-teal{background:#ccfbf1;color:#0f766e}
+.feature-card h3{font-size:1.05rem;font-weight:700;color:var(--dark);margin-bottom:.5rem}
+.feature-card p{font-size:.875rem;color:var(--muted);line-height:1.6}
+
+/* HOW IT WORKS */
+.how{background:var(--light)}
+.steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:2rem;margin-top:3rem;position:relative}
+.step{text-align:center;padding:2rem 1.5rem;background:white;border-radius:20px;box-shadow:0 4px 20px rgba(0,0,0,.06);position:relative}
+.step-num{width:44px;height:44px;background:linear-gradient(135deg,var(--purple),var(--purple2));color:white;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:1.1rem;margin:0 auto 1.25rem}
+.step h3{font-size:1rem;font-weight:700;color:var(--dark);margin-bottom:.5rem}
+.step p{font-size:.85rem;color:var(--muted);line-height:1.6}
+
+/* TECH STACK */
+.tech-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:1.25rem;margin-top:3rem}
+.tech-card{background:white;border:1px solid #e2e8f0;border-radius:16px;padding:1.5rem;text-align:center;transition:all .3s}
+.tech-card:hover{transform:translateY(-4px);box-shadow:0 12px 30px rgba(0,0,0,.1);border-color:var(--purple)}
+.tech-icon{font-size:2.2rem;margin-bottom:.75rem}
+.tech-card h4{font-size:.9rem;font-weight:700;color:var(--dark);margin-bottom:.25rem}
+.tech-card p{font-size:.75rem;color:var(--muted)}
+
+/* ROLES */
+.roles-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1.5rem;margin-top:3rem}
+.role-card-info{border-radius:20px;padding:2rem;color:white;position:relative;overflow:hidden}
+.role-card-info::before{content:'';position:absolute;top:-30px;right:-30px;width:100px;height:100px;border-radius:50%;background:rgba(255,255,255,.1)}
+.rc-user{background:linear-gradient(135deg,#667eea,#764ba2)}
+.rc-student{background:linear-gradient(135deg,#f093fb,#f5576c)}
+.rc-teacher{background:linear-gradient(135deg,#4facfe,#00f2fe)}
+.rc-admin{background:linear-gradient(135deg,#43e97b,#38f9d7)}
+.role-card-info i{font-size:2rem;margin-bottom:1rem;display:block;opacity:.9}
+.role-card-info h3{font-size:1.1rem;font-weight:700;margin-bottom:.5rem}
+.role-card-info p{font-size:.85rem;opacity:.85;line-height:1.6}
+.role-card-info ul{margin-top:.75rem;padding-left:1rem;font-size:.8rem;opacity:.85}
+.role-card-info ul li{margin-bottom:.25rem}
+
+/* GET STARTED */
+.get-started{background:linear-gradient(135deg,#667eea,#764ba2);text-align:center;padding:5rem 2rem}
+.get-started h2{font-size:clamp(1.75rem,4vw,2.5rem);font-weight:800;color:white;margin-bottom:1rem}
+.get-started p{color:rgba(255,255,255,.85);font-size:1.05rem;max-width:500px;margin:0 auto 2.5rem}
+.role-selector{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1.25rem;max-width:700px;margin:0 auto}
+.role-btn-card{background:rgba(255,255,255,.12);border:2px solid rgba(255,255,255,.25);border-radius:20px;padding:1.75rem 1.25rem;text-align:center;cursor:pointer;transition:all .3s;color:white;backdrop-filter:blur(10px)}
+.role-btn-card:hover{background:rgba(255,255,255,.22);transform:translateY(-6px);border-color:rgba(255,255,255,.5)}
+.role-btn-card i{font-size:2rem;margin-bottom:.75rem;display:block}
+.role-btn-card h3{font-size:1rem;font-weight:700;margin-bottom:.25rem}
+.role-btn-card p{font-size:.8rem;opacity:.8}
+
+/* FOOTER */
+footer{background:var(--dark);color:rgba(255,255,255,.6);text-align:center;padding:2rem;font-size:.875rem}
+footer strong{color:white}
+
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(10px);display:none;justify-content:center;align-items:center;z-index:9999}
+.modal-overlay.active{display:flex}
+.modal-box{width:420px;max-width:95%;position:relative}
+.close-btn{position:absolute;top:-12px;right:-12px;width:34px;height:34px;border-radius:50%;border:none;background:#ff4d4d;color:white;font-size:20px;cursor:pointer;z-index:10}
+iframe{width:100%;height:540px;border:none;border-radius:15px}
+
+@media(max-width:768px){
+  .about-grid{grid-template-columns:1fr}
+  .nav-links{display:none}
+  .hero-stats{gap:1.5rem}
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav id="navbar">
+  <a href="#" class="nav-logo"><i class="fas fa-cloud"></i> Sky Vault</a>
+  <div class="nav-links">
+    <a href="#about">About</a>
+    <a href="#features">Features</a>
+    <a href="#how">How It Works</a>
+    <a href="#tech">Tech Stack</a>
+    <a href="#getstarted" class="nav-cta">Get Started</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-content">
+    <div class="hero-badge"><i class="fas fa-shield-alt"></i> Secure · Fast · Organised</div>
+    <h1>Your Files.<br><span>Anywhere. Always.</span></h1>
+    <p>Sky Vault is a cloud storage platform built for individuals and organisations — upload, manage, and access your files securely from any browser.</p>
+    <div class="hero-btns">
+      <a href="#getstarted" class="btn-hero-primary"><i class="fas fa-rocket"></i> Get Started Free</a>
+      <a href="#features" class="btn-hero-secondary"><i class="fas fa-play-circle"></i> See Features</a>
+    </div>
+    <div class="hero-stats">
+      <div class="hero-stat"><span class="hero-stat-num">4</span><div class="hero-stat-label">User Roles</div></div>
+      <div class="hero-stat"><span class="hero-stat-num">20 GB</span><div class="hero-stat-label">Free Storage</div></div>
+      <div class="hero-stat"><span class="hero-stat-num">100%</span><div class="hero-stat-label">Secure</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ABOUT -->
+<section class="about" id="about">
+  <div class="container">
+    <div class="about-grid">
+      <div class="about-text">
+        <div class="section-label">About Sky Vault</div>
+        <h2 class="section-title">More than just file storage</h2>
+        <p>Sky Vault is a full-stack cloud storage platform designed for both individual users and educational organisations. It combines secure file management with a complete organisation system for schools and institutions.</p>
+        <p>Whether you're a student storing assignments, a teacher sharing resources, or an admin managing your school's digital workspace — Sky Vault has you covered.</p>
+        <div class="about-features">
+          <div class="about-feature"><i class="fas fa-lock"></i><div class="about-feature-text"><strong>End-to-end security</strong><span>Firebase authentication + Supabase storage with user isolation</span></div></div>
+          <div class="about-feature"><i class="fas fa-building"></i><div class="about-feature-text"><strong>Organisation management</strong><span>Full admin panel to manage teachers, students, and classes</span></div></div>
+          <div class="about-feature"><i class="fas fa-bolt"></i><div class="about-feature-text"><strong>Real-time notifications</strong><span>Instant updates via Supabase Realtime — no page refresh needed</span></div></div>
+        </div>
+      </div>
+      <div class="about-visual">
+        <div class="about-visual-title"><i class="fas fa-cloud-upload-alt"></i> What you can do</div>
+        <div class="about-visual-item"><i class="fas fa-upload"></i> Upload any file type</div>
+        <div class="about-visual-item"><i class="fas fa-folder"></i> Organise into folders</div>
+        <div class="about-visual-item"><i class="fas fa-eye"></i> Preview images, PDFs, videos</div>
+        <div class="about-visual-item"><i class="fas fa-download"></i> Download anytime</div>
+        <div class="about-visual-item"><i class="fas fa-trash-restore"></i> Trash and restore files</div>
+        <div class="about-visual-item"><i class="fas fa-users"></i> Manage your organisation</div>
+        <div class="about-visual-item"><i class="fas fa-bell"></i> Real-time notifications</div>
+        <div class="about-visual-item"><i class="fas fa-search"></i> Search across all files</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section id="features">
+  <div class="container">
+    <div class="text-center">
+      <div class="section-label">Features</div>
+      <h2 class="section-title">Everything you need</h2>
+      <p class="section-sub">A complete set of tools for personal file management and organisation-wide collaboration.</p>
+    </div>
+    <div class="features-grid">
+      <div class="feature-card"><div class="feature-icon fi-purple"><i class="fas fa-shield-alt"></i></div><h3>Secure Authentication</h3><p>Firebase-powered login with email/password and Google OAuth. Strong password requirements enforced on all accounts.</p></div>
+      <div class="feature-card"><div class="feature-icon fi-blue"><i class="fas fa-cloud-upload-alt"></i></div><h3>File Upload & Storage</h3><p>Upload any file type to Supabase Storage. Files are stored securely with unique paths per user — no cross-user access.</p></div>
+      <div class="feature-card"><div class="feature-icon fi-green"><i class="fas fa-eye"></i></div><h3>File Preview</h3><p>Preview images, PDFs, videos, audio, and text files directly in the browser without downloading.</p></div>
+      <div class="feature-card"><div class="feature-icon fi-orange"><i class="fas fa-folder-open"></i></div><h3>Folder Organisation</h3><p>Create folders to organise your files. Navigate in and out of folders with a clean, intuitive interface.</p></div>
+      <div class="feature-card"><div class="feature-icon fi-pink"><i class="fas fa-building"></i></div><h3>Organisation System</h3><p>Admins create organisations with unique join codes. Teachers and students join using the code and get role-based access.</p></div>
+      <div class="feature-card"><div class="feature-icon fi-teal"><i class="fas fa-bell"></i></div><h3>Real-time Notifications</h3><p>Class invites, assignment posts, and submissions appear instantly via Supabase Realtime — no refresh needed.</p></div>
+      <div class="feature-card"><div class="feature-icon fi-purple"><i class="fas fa-chalkboard-teacher"></i></div><h3>Class Management</h3><p>Teachers create classes, post assignments, upload notes, and track student submissions with marks.</p></div>
+      <div class="feature-card"><div class="feature-icon fi-blue"><i class="fas fa-search"></i></div><h3>File Search</h3><p>Search across all your files by name with live debounced results. Filter by file type — images, documents, videos, audio.</p></div>
+      <div class="feature-card"><div class="feature-icon fi-green"><i class="fas fa-trash-restore"></i></div><h3>Trash & Restore</h3><p>Deleted files go to trash first. Restore them anytime or permanently delete. Empty trash in one click.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="how" id="how">
+  <div class="container">
+    <div class="text-center">
+      <div class="section-label">How It Works</div>
+      <h2 class="section-title">Up and running in minutes</h2>
+      <p class="section-sub">Getting started is simple whether you're an individual user or setting up for your whole organisation.</p>
+    </div>
+    <div class="steps">
+      <div class="step"><div class="step-num">1</div><h3>Choose Your Role</h3><p>Select whether you're an individual user or part of an organisation as a student, teacher, or admin.</p></div>
+      <div class="step"><div class="step-num">2</div><h3>Create Account</h3><p>Sign up with email and password or continue with Google. Your account is secured by Firebase Authentication.</p></div>
+      <div class="step"><div class="step-num">3</div><h3>Join or Create Org</h3><p>Admins create an organisation and get a unique join code. Teachers and students use that code to join.</p></div>
+      <div class="step"><div class="step-num">4</div><h3>Upload & Manage</h3><p>Upload files, create folders, preview content, and collaborate with your organisation — all in one place.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- TECH STACK -->
+<section id="tech">
+  <div class="container">
+    <div class="text-center">
+      <div class="section-label">Tech Stack</div>
+      <h2 class="section-title">Built with modern tools</h2>
+      <p class="section-sub">Sky Vault is built on a reliable, scalable stack using industry-standard technologies.</p>
+    </div>
+    <div class="tech-grid">
+      <div class="tech-card"><div class="tech-icon">🔥</div><h4>Firebase</h4><p>Authentication & Google OAuth</p></div>
+      <div class="tech-card"><div class="tech-icon">⚡</div><h4>Supabase</h4><p>PostgreSQL database & file storage</p></div>
+      <div class="tech-card"><div class="tech-icon">🐍</div><h4>Python Flask</h4><p>Backend REST API server</p></div>
+      <div class="tech-card"><div class="tech-icon">🌐</div><h4>HTML / CSS / JS</h4><p>Vanilla frontend, ES6 modules</p></div>
+      <div class="tech-card"><div class="tech-icon">🗄️</div><h4>PostgreSQL</h4><p>Relational database via Supabase</p></div>
+      <div class="tech-card"><div class="tech-icon">📡</div><h4>Supabase Realtime</h4><p>Live notifications via WebSockets</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ROLES -->
+<section style="background:var(--light)">
+  <div class="container">
+    <div class="text-center">
+      <div class="section-label">User Roles</div>
+      <h2 class="section-title">Built for everyone</h2>
+      <p class="section-sub">Four distinct roles, each with their own dashboard and capabilities.</p>
+    </div>
+    <div class="roles-grid" style="margin-top:3rem">
+      <div class="role-card-info rc-user"><i class="fas fa-user"></i><h3>Individual User</h3><p>Personal cloud storage with full file management.</p><ul><li>Upload & organise files</li><li>Preview & download</li><li>20 GB free storage</li></ul></div>
+      <div class="role-card-info rc-student"><i class="fas fa-user-graduate"></i><h3>Student</h3><p>Access class materials and submit assignments.</p><ul><li>Join classes via invite</li><li>Submit assignments</li><li>Auto-generated Student ID</li></ul></div>
+      <div class="role-card-info rc-teacher"><i class="fas fa-chalkboard-teacher"></i><h3>Teacher</h3><p>Create classes, post assignments, manage students.</p><ul><li>Create & manage classes</li><li>Post assignments</li><li>Review submissions</li></ul></div>
+      <div class="role-card-info rc-admin"><i class="fas fa-user-shield"></i><h3>Organisation Admin</h3><p>Full control over your organisation's workspace.</p><ul><li>Manage all members</li><li>Promote to teacher/student</li><li>View all classes</li></ul></div>
+    </div>
+  </div>
+</section>
+
+<!-- GET STARTED -->
+<section class="get-started" id="getstarted">
+  <div class="container">
+    <h2>Ready to get started?</h2>
+    <p>Choose how you'd like to use Sky Vault and create your account in seconds.</p>
+    <div class="role-selector">
+      <div class="role-btn-card" onclick="selectRole('user')">
+        <i class="fas fa-user"></i>
+        <h3>Individual User</h3>
+        <p>Personal file storage</p>
+      </div>
+      <div class="role-btn-card" onclick="selectRole('organization')">
+        <i class="fas fa-building"></i>
+        <h3>Organisation</h3>
+        <p>For schools & institutions</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <p><strong>Sky Vault</strong> &nbsp;·&nbsp; Secure cloud storage for everyone &nbsp;·&nbsp; Built with Firebase, Supabase & Flask</p>
+</footer>
+
+<!-- AUTH MODAL -->
+<div class="modal-overlay" id="authModal">
+  <div class="modal-box">
+    <button class="close-btn" onclick="closeAuth()">×</button>
+    <iframe id="authFrame"></iframe>
+  </div>
+</div>
+
+<script>
+// Navbar scroll effect
+window.addEventListener('scroll',()=>{
+  document.getElementById('navbar').classList.toggle('scrolled',window.scrollY>50);
+});
+
+// Role selection
+function selectRole(role){
+  localStorage.setItem('selectedRole',role);
+  if(role==='user') openAuth('user-auth.html');
+  else if(role==='organization') window.location.href='organization-id.html';
+}
+
+function openAuth(page){
+  document.getElementById('authModal').classList.add('active');
+  document.getElementById('authFrame').src=page;
+}
+function closeAuth(){
+  document.getElementById('authModal').classList.remove('active');
+  document.getElementById('authFrame').src='';
+}
+window.addEventListener('click',e=>{
+  if(e.target===document.getElementById('authModal')) closeAuth();
+});
+
+// Smooth scroll for nav links
+document.querySelectorAll('a[href^="#"]').forEach(a=>{
+  a.addEventListener('click',e=>{
+    const target=document.querySelector(a.getAttribute('href'));
+    if(target){e.preventDefault();target.scrollIntoView({behavior:'smooth'});}
+  });
+});
+</script>
+</body>
+</html>

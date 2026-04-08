@@ -1,0 +1,1970 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sky Vault - Student Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --student-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            --primary-color: #667eea;
+            --student-color: #f5576c;
+        }
+
+        body {
+            font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+            background: #f8fafc;
+            color: #334155;
+            line-height: 1.6;
+            transition: all 0.5s ease;
+        }
+
+        body.student-mode {
+            background: #fff5f7;
+        }
+
+        /* Header Navigation */
+        .header {
+            background: var(--primary-gradient);
+            color: white;
+            padding: 1rem 0;
+            box-shadow: 0 4px 20px rgba(102, 126, 234, 0.15);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            transition: all 0.5s ease;
+        }
+
+        body.student-mode .header {
+            background: var(--student-gradient);
+            box-shadow: 0 4px 20px rgba(245, 87, 108, 0.15);
+        }
+
+        .nav-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 1.5rem;
+            font-weight: 800;
+        }
+
+        /* Dashboard Toggle Switch */
+        .dashboard-toggle {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            background: rgba(255, 255, 255, 0.15);
+            padding: 0.5rem 1rem;
+            border-radius: 50px;
+            backdrop-filter: blur(10px);
+        }
+
+        .toggle-label {
+            font-size: 0.9rem;
+            font-weight: 600;
+            opacity: 0.8;
+            transition: opacity 0.3s ease;
+        }
+
+        .toggle-label.active {
+            opacity: 1;
+        }
+
+        .toggle-switch {
+            position: relative;
+            width: 60px;
+            height: 30px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .toggle-switch::before {
+            content: '';
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            width: 24px;
+            height: 24px;
+            background: white;
+            border-radius: 50%;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .toggle-switch.active::before {
+            left: 33px;
+        }
+
+        .nav-actions {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .search-box {
+            position: relative;
+        }
+
+        .search-box input {
+            background: rgba(255, 255, 255, 0.15);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 25px;
+            padding: 0.5rem 1rem 0.5rem 2.5rem;
+            color: white;
+            width: 300px;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+
+        .search-box input::placeholder {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .search-box i {
+            position: absolute;
+            left: 0.75rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .user-menu {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .notification-btn, .profile-btn {
+            background: rgba(255, 255, 255, 0.15);
+            border: none;
+            color: white;
+            padding: 0.75rem;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .logout-btn {
+            background: rgba(255, 255, 255, 0.15);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 0.5rem 1.25rem;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        /* Main Container */
+        .main-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            gap: 2rem;
+            opacity: 1;
+            transform: scale(1);
+            transition: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+
+        body.transitioning .main-container {
+            opacity: 0;
+            transform: scale(0.95);
+        }
+
+        /* Sidebar */
+        .sidebar {
+            background: white;
+            border-radius: 16px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            height: fit-content;
+            position: sticky;
+            top: 120px;
+            transition: all 0.5s ease;
+        }
+
+        body.student-mode .sidebar {
+            background: linear-gradient(135deg, #fff5f7 0%, #ffe5eb 100%);
+            box-shadow: 0 4px 20px rgba(245, 87, 108, 0.1);
+        }
+
+        .sidebar-section {
+            margin-bottom: 2rem;
+        }
+
+        .sidebar-title {
+            font-size: 0.875rem;
+            font-weight: 700;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 1rem;
+        }
+
+        body.student-mode .sidebar-title {
+            color: #f5576c;
+        }
+
+        .sidebar-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1rem;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+
+        .sidebar-item:hover {
+            background: #f1f5f9;
+            color: #667eea;
+        }
+
+        body.student-mode .sidebar-item:hover {
+            background: #ffe5eb;
+            color: #f5576c;
+        }
+
+        .sidebar-item.active {
+            background: var(--primary-gradient);
+            color: white;
+        }
+
+        body.student-mode .sidebar-item.active {
+            background: var(--student-gradient);
+        }
+
+        /* Student Info Card */
+        .student-info-card {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            border-radius: 12px;
+            padding: 1.25rem;
+            color: white;
+            text-align: center;
+            margin-bottom: 1.5rem;
+            display: none;
+        }
+
+        body.student-mode .student-info-card {
+            display: block;
+            animation: slideInLeft 0.5s ease;
+        }
+
+        .student-id-badge {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-top: 0.5rem;
+            backdrop-filter: blur(10px);
+        }
+
+        /* Content Area */
+        .content-area {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+            min-height: 600px;
+            transition: all 0.5s ease;
+        }
+
+        body.student-mode .content-area {
+            background: linear-gradient(to bottom, #fff5f7 0%, white 100%);
+            box-shadow: 0 4px 20px rgba(245, 87, 108, 0.1);
+        }
+
+        .content-header {
+            padding: 2rem 2rem 1rem;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        body.student-mode .content-header {
+            border-bottom-color: #ffe5eb;
+        }
+
+        .content-title h2 {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: #1e293b;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .btn-primary {
+            background: var(--primary-gradient);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        body.student-mode .btn-primary {
+            background: var(--student-gradient);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        body.student-mode .btn-primary:hover {
+            box-shadow: 0 6px 20px rgba(245, 87, 108, 0.4);
+        }
+
+        /* Classes Grid (Student Mode) */
+        .classes-grid {
+            padding: 2rem;
+            display: none;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        body.student-mode .classes-grid {
+            display: grid;
+        }
+
+        .class-card {
+            background: white;
+            border: 2px solid #ffe5eb;
+            border-radius: 16px;
+            padding: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .class-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--student-gradient);
+        }
+
+        .class-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 25px rgba(245, 87, 108, 0.15);
+        }
+
+        .class-icon {
+            width: 60px;
+            height: 60px;
+            background: var(--student-gradient);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: white;
+            margin-bottom: 1rem;
+        }
+
+        .class-name {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 0.5rem;
+        }
+
+        .class-teacher {
+            font-size: 0.9rem;
+            color: #64748b;
+            margin-bottom: 0.5rem;
+        }
+
+        .class-stats {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid #ffe5eb;
+        }
+
+        .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.875rem;
+            color: #64748b;
+        }
+
+        .storage-info {
+            background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+            border-radius: 12px;
+            padding: 1.25rem;
+            text-align: center;
+        }
+
+        body.student-mode .storage-info {
+            background: linear-gradient(135deg, #ffe5eb 0%, #ffd1dc 100%);
+        }
+
+        .storage-text {
+            font-size: 0.875rem;
+            color: #64748b;
+            margin-bottom: 0.5rem;
+        }
+
+        .upgrade-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        body.student-mode .upgrade-btn {
+            background: var(--student-gradient);
+        }
+
+        /* File Grid */
+        .file-grid {
+            padding: 2rem;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .file-card {
+            background: #f8fafc;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 1.5rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: visible;
+        }
+
+        body.student-mode .file-card {
+            border-color: #ffe5eb;
+        }
+
+        .file-card:hover {
+            border-color: #667eea;
+            transform: translateY(-4px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.15);
+            z-index: 50;
+        }
+
+        body.student-mode .file-card:hover {
+            border-color: #f5576c;
+            box-shadow: 0 8px 25px rgba(245, 87, 108, 0.15);
+        }
+
+        .file-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            color: #667eea;
+        }
+
+        body.student-mode .file-icon {
+            color: #f5576c;
+        }
+
+        .file-name {
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 0.5rem;
+            word-break: break-word;
+        }
+
+        .file-info {
+            font-size: 0.875rem;
+            color: #64748b;
+        }
+
+        .file-menu {
+            position: absolute;
+            top: 0.75rem;
+            right: 0.75rem;
+            background: white;
+            border: none;
+            border-radius: 50%;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            opacity: 0;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            z-index: 100;
+        }
+
+        .file-card:hover .file-menu {
+            opacity: 1;
+        }
+
+        .file-menu.active {
+            opacity: 1;
+        }
+
+        .dropdown-menu {
+            position: absolute;
+            top: calc(100% + 0.25rem);
+            right: 0;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            min-width: 200px;
+            padding: 0.5rem;
+            display: none;
+            z-index: 1000;
+            animation: dropdownFadeIn 0.2s ease-out;
+        }
+
+        @keyframes dropdownFadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .dropdown-menu.show {
+            display: block;
+        }
+
+        .dropdown-menu::before {
+            content: '';
+            position: absolute;
+            top: -8px;
+            right: 8px;
+            width: 0;
+            height: 0;
+            border-left: 8px solid transparent;
+            border-right: 8px solid transparent;
+            border-bottom: 8px solid white;
+        }
+
+        .dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 0.95rem;
+            color: #334155;
+            white-space: nowrap;
+        }
+
+        .dropdown-item:hover {
+            background: #f1f5f9;
+            color: #667eea;
+        }
+
+        body.student-mode .dropdown-item:hover {
+            background: #ffe5eb;
+            color: #f5576c;
+        }
+
+        .dropdown-item.danger:hover {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+
+        .dropdown-item i {
+            width: 20px;
+            text-align: center;
+            flex-shrink: 0;
+        }
+
+        .dropdown-divider {
+            height: 1px;
+            background: #e2e8f0;
+            margin: 0.5rem 0;
+        }
+
+        .star-badge {
+            position: absolute;
+            top: 0.5rem;
+            left: 0.5rem;
+            background: #fbbf24;
+            color: white;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.875rem;
+            box-shadow: 0 2px 8px rgba(251, 191, 36, 0.4);
+        }
+
+        .trash-badge {
+            position: absolute;
+            top: 0.5rem;
+            left: 0.5rem;
+            background: #ef4444;
+            color: white;
+            padding: 0.25rem 0.5rem;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: #64748b;
+            grid-column: 1 / -1;
+        }
+
+        .empty-state i {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            color: #cbd5e1;
+        }
+
+        .empty-state h3 {
+            font-size: 1.25rem;
+            margin-bottom: 0.5rem;
+            color: #475569;
+        }
+
+        @keyframes slideInLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @media (max-width: 1024px) {
+            .main-container {
+                grid-template-columns: 1fr;
+            }
+            .sidebar {
+                position: static;
+            }
+        }
+        /* Professional Upload Dropbox */
+.upload-dropbox {
+    margin: 2rem 0;
+    padding: 3rem;
+    border: 2px dashed #cbd5e1;
+    border-radius: 16px;
+    background: #ffffff;
+    text-align: center;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    position: relative;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+}
+
+.upload-dropbox:hover {
+    border-color: var(--primary-color);
+    background: #f1f5f9;
+}
+
+body.student-mode .upload-dropbox:hover {
+    border-color: var(--student-color);
+    background: #fff5f7;
+}
+
+.upload-dropbox i {
+    font-size: 3rem;
+    color: #94a3b8;
+    margin-bottom: 1rem;
+    transition: all 0.3s ease;
+}
+
+.upload-dropbox:hover i {
+    transform: translateY(-5px);
+    color: var(--primary-color);
+}
+
+body.student-mode .upload-dropbox:hover i {
+    color: var(--student-color);
+}
+
+.upload-dropbox h3 {
+    font-size: 1.25rem;
+    color: #1e293b;
+    margin-bottom: 0.5rem;
+}
+
+.upload-dropbox p {
+    color: #64748b;
+    font-size: 0.9rem;
+}
+
+.upload-dropbox input[type="file"] {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    opacity: 0;
+    cursor: pointer;
+}
+/* Automatically hide dropbox in Student Mode */
+body.student-mode .upload-dropbox {
+    display: none !important;
+}
+.stab-btn.active { color: #f5576c !important; border-bottom-color: #f5576c !important; }
+.modal-overlay { position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:1000;display:none;align-items:center;justify-content:center; }
+.modal-overlay.show { display:flex; }
+.assignment-card { background:#f8fafc; border:2px solid #ffe5eb; border-radius:12px; padding:1.25rem; margin-bottom:1rem; cursor:pointer; transition:all 0.3s ease; display:flex; align-items:center; gap:1rem; }
+.assignment-card:hover { border-color:#f5576c; box-shadow:0 4px 15px rgba(245,87,108,0.1); }
+.assignment-icon { width:50px; height:50px; background:var(--student-gradient); border-radius:10px; display:flex; align-items:center; justify-content:center; color:white; font-size:1.25rem; flex-shrink:0; }
+.assignment-info { flex:1; }
+.assignment-title { font-weight:700; color:#1e293b; margin-bottom:0.25rem; }
+.assignment-meta { font-size:0.875rem; color:#64748b; }
+.assignment-marks { background:#ffe5eb; color:#9d174d; padding:0.25rem 0.75rem; border-radius:20px; font-size:0.875rem; font-weight:600; }
+.note-card { background:#f8fafc; border:2px solid #ffe5eb; border-radius:12px; padding:1.5rem; text-align:center; cursor:pointer; transition:all 0.3s ease; position:relative; }
+.note-card:hover { border-color:#f5576c; box-shadow:0 4px 15px rgba(245,87,108,0.1); }
+.note-icon { font-size:2.5rem; margin-bottom:0.75rem; color:#f5576c; }
+.note-name { font-weight:600; color:#1e293b; font-size:0.9rem; word-break:break-word; }
+.note-meta { font-size:0.8rem; color:#64748b; margin-top:0.25rem; }
+.submit-area { background:white; border:2px solid #ffe5eb; border-radius:16px; padding:2rem; margin-top:1rem; }
+.status-badge { padding:0.25rem 0.75rem; border-radius:20px; font-size:0.8rem; font-weight:600; }
+.status-badge.submitted { background:#d1fae5; color:#065f46; }
+.status-badge.pending { background:#fee2e2; color:#991b1b; }
+        
+    </style>
+</head>
+<body>
+    <!-- Header Navigation -->
+    <header class="header">
+        <div class="nav-container">
+            <div style="display: flex; align-items: center; gap: 2rem;">
+                <div class="logo">
+                    <i class="fas fa-cloud"></i>
+                    <span>Sky Vault</span>
+                </div>
+                
+                <!-- Dashboard Toggle -->
+                <div class="dashboard-toggle">
+                    <span class="toggle-label active" id="normalLabel">Normal</span>
+                    <div class="toggle-switch" id="toggleSwitch" onclick="toggleDashboard()"></div>
+                    <span class="toggle-label" id="studentLabel">Student</span>
+                </div>
+            </div>
+            
+            <div class="nav-actions">
+                <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="searchInput" placeholder="Search files and classes..." oninput="handleSearch(this.value)">
+                </div>
+                
+                <div class="user-menu">
+                    <button class="notification-btn" onclick="openNotifPanel()" style="position:relative;">
+                        <i class="fas fa-bell"></i>
+                        <span id="notifBadge" style="display:none;position:absolute;top:2px;right:2px;background:#ef4444;color:white;width:16px;height:16px;border-radius:50%;font-size:0.6rem;align-items:center;justify-content:center;font-weight:700;"></span>
+                    </button>
+                    <button class="profile-btn" onclick="openProfileModal()">
+                        <i class="fas fa-user"></i>
+                    </button>
+                    <button class="logout-btn" onclick="logout()">
+                        <i class="fas fa-sign-out-alt"></i>
+                        Logout
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <div class="main-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <!-- Student Info Card (Only in Student Mode) -->
+            <div class="student-info-card">
+                <div style="font-size: 0.875rem; opacity: 0.9;">Student ID</div>
+                <div class="student-id-badge" id="studentIdDisplay">Loading...</div>
+                <div style="font-size: 0.875rem; margin-top: 0.5rem; opacity: 0.9;" id="studentNameDisplay">John Doe</div>
+            </div>
+
+            <div class="sidebar-section" id="studentSection" style="display: none;">
+                <div class="sidebar-title">Student</div>
+                <div class="sidebar-item" onclick="switchView('classes',this)">
+                    <i class="fas fa-chalkboard"></i>
+                    <span>My Classes</span>
+                </div>
+                <div class="sidebar-item" onclick="switchView('assignments',this)">
+                    <i class="fas fa-tasks"></i>
+                    <span>Assignments</span>
+                </div>
+                <div class="sidebar-item" onclick="switchView('notes',this)">
+                    <i class="fas fa-book"></i>
+                    <span>Notes</span>
+                </div>
+            </div>
+
+            <div class="sidebar-section">
+                <div class="sidebar-title">Navigation</div>
+                <div class="sidebar-item active" onclick="switchView('myfiles',this)">
+                    <i class="fas fa-home"></i>
+                    <span>My Files</span>
+                </div>
+                <div class="sidebar-item" onclick="switchView('recent',this)">
+                    <i class="fas fa-clock"></i>
+                    <span>Recent</span>
+                </div>
+                <div class="sidebar-item" onclick="switchView('starred',this)">
+                    <i class="fas fa-star"></i>
+                    <span>Starred</span>
+                </div>
+                <div class="sidebar-item" onclick="switchView('trash',this)">
+                    <i class="fas fa-trash"></i>
+                    <span>Trash</span>
+                </div>
+            </div>
+
+            <div class="storage-info">
+                <div class="storage-circle">
+                    <i class="fas fa-hdd" style="font-size: 2rem; color: #667eea;"></i>
+                </div>
+                <div class="storage-text">Storage Used</div>
+                <div style="font-weight:700;color:#1e293b;margin-bottom:0.5rem;" id="storageText">Loading...</div>
+                <div style="background:#e2e8f0;border-radius:50px;height:8px;margin-bottom:1rem;overflow:hidden;">
+                    <div id="storageBar" style="height:100%;background:var(--student-gradient);border-radius:50px;width:0%;transition:width 0.8s ease;"></div>
+                </div>
+                <button class="upgrade-btn">Upgrade Storage</button>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="content-area">
+            <div class="content-header">
+                <div class="content-title">
+                    <h2 id="contentTitle">My Files</h2>
+                </div>
+                <div class="action-buttons" id="actionButtons">
+                    <button class="btn-primary" onclick="uploadFile()">
+                        <i class="fas fa-upload"></i>
+                        Upload Files
+                    </button>
+                    <button class="btn-primary" style="background: rgba(100, 116, 139, 0.1); color: #64748b;" onclick="createFolder()">
+                        <i class="fas fa-folder-plus"></i>
+                        New Folder
+                    </button>
+                    <button class="btn-primary" id="emptyTrashBtn" 
+        style="background: #fee2e2; color: #dc2626; border: 1px solid #fecaca; display: none;" 
+        onclick="emptyTrash()">
+    <i class="fas fa-trash-sweep"></i>
+    Empty Trash
+</button>
+                </div>
+            </div>
+
+            <!-- File Grid (Personal Mode) -->
+            <div class="file-grid" id="fileGrid"></div>
+
+            <!-- Student Org Views -->
+            <div id="studentOrgArea" style="display:none; padding:2rem;">
+
+                <!-- Classes Grid -->
+                <div id="classesGrid" style="display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:1.5rem;"></div>
+
+                <!-- Class Detail -->
+                <div id="classDetailView" style="display:none;">
+                    <div style="display:flex;align-items:center;gap:1rem;margin-bottom:1.5rem;">
+                        <button onclick="backToClasses()" style="background:rgba(100,116,139,0.1);color:#64748b;border:none;padding:0.75rem 1.5rem;border-radius:12px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:0.5rem;"><i class="fas fa-arrow-left"></i> Back</button>
+                        <h3 id="classDetailTitle" style="font-size:1.5rem;font-weight:700;color:#1e293b;"></h3>
+                    </div>
+                    <div style="display:flex;gap:0.5rem;margin-bottom:1.5rem;border-bottom:2px solid #ffe5eb;padding-bottom:0;">
+                        <button class="stab-btn active" onclick="switchStudentTab('notes',this)" style="padding:0.75rem 1.5rem;border:none;background:none;font-weight:600;color:#64748b;cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-2px;">Notes</button>
+                        <button class="stab-btn" onclick="switchStudentTab('assignments',this)" style="padding:0.75rem 1.5rem;border:none;background:none;font-weight:600;color:#64748b;cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-2px;">Assignments</button>
+                    </div>
+                    <div id="stab-notes" class="stab-content"></div>
+                    <div id="stab-assignments" class="stab-content" style="display:none;"></div>
+                </div>
+
+                <!-- Assignment Submit View -->
+                <div id="assignSubmitView" style="display:none;">
+                    <div style="display:flex;align-items:center;gap:1rem;margin-bottom:1.5rem;">
+                        <button onclick="backFromAssignment()" style="background:rgba(100,116,139,0.1);color:#64748b;border:none;padding:0.75rem 1.5rem;border-radius:12px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:0.5rem;"><i class="fas fa-arrow-left"></i> Back</button>
+                        <div>
+                            <h3 id="assignSubmitTitle" style="font-size:1.5rem;font-weight:700;color:#1e293b;"></h3>
+                            <span id="assignSubmitMeta" style="font-size:0.9rem;color:#64748b;"></span>
+                        </div>
+                    </div>
+                    <div id="assignSubmitBody"></div>
+                </div>
+
+                <!-- All Assignments View -->
+                <div id="allAssignmentsView" style="display:none;">
+                    <div id="allAssignmentsList"></div>
+                </div>
+
+                <!-- All Notes View -->
+                <div id="allNotesView" style="display:none;">
+                    <div id="allNotesList" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:1.5rem;"></div>
+                </div>
+
+            </div>
+
+            <div class="upload-dropbox" id="dropzone">
+                <i class="fas fa-cloud-upload-alt"></i>
+                <h3>Drag & drop files here</h3>
+                <p>or click to browse from your computer</p>
+                <input type="file" id="fileInput" multiple onchange="handleFiles(this.files)">
+            </div>
+        </main>
+    </div>
+
+    <!-- Profile Modal -->
+    <div class="modal-overlay" id="profileModal">
+        <div style="background:white;border-radius:20px;padding:2rem;width:90%;max-width:420px;box-shadow:0 20px 60px rgba(0,0,0,0.3);">
+            <h3 style="font-size:1.25rem;font-weight:700;color:#1e293b;margin-bottom:1.5rem;"><i class="fas fa-user-circle" style="color:#f5576c;margin-right:0.5rem;"></i>My Profile</h3>
+            <div id="profileContent"></div>
+        </div>
+    </div>
+    <div id="notifPanel" style="position:fixed;top:0;right:-420px;width:400px;height:100vh;background:white;box-shadow:-4px 0 30px rgba(0,0,0,0.15);z-index:2000;transition:right 0.3s ease;display:flex;flex-direction:column;">
+        <div style="padding:1.5rem;background:var(--student-gradient);color:white;display:flex;align-items:center;justify-content:space-between;">
+            <h3 style="font-weight:700;font-size:1.1rem;"><i class="fas fa-bell" style="margin-right:0.5rem;"></i>Notifications</h3>
+            <button onclick="closeNotifPanel()" style="background:rgba(255,255,255,0.2);border:none;color:white;width:32px;height:32px;border-radius:50%;cursor:pointer;font-size:1rem;">×</button>
+        </div>
+        <div id="notifPanelList" style="flex:1;overflow-y:auto;padding:1rem;"></div>
+    </div>
+    <div id="notifOverlay" onclick="closeNotifPanel()" style="position:fixed;inset:0;background:rgba(0,0,0,0.3);z-index:1999;display:none;"></div>
+
+    <script type="module">
+        import {
+            uploadFile as uploadFileToBackend, getUserFiles, deleteFile as deleteFileFromBackend,
+            trashFile, restoreFile as restoreFileAPI, emptyTrashAPI,
+            getStudentByUID, getUserProfile, getOrgInfo,
+            getStudentClasses, getClassNotes, getClassAssignments,
+            getAssignmentSubmissions, submitAssignment,
+            getNotifications as getNotificationsAPI, markAllNotificationsRead,
+            createFolder as createFolderAPI, getUserFolders, getFolderFiles, deleteFolder as deleteFolderAPI,
+            updateUserProfile, acceptClassInvite, rejectClassInvite, clearAllNotifications
+        } from '/api.js';
+        import { auth } from '/firebase.js';
+        import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+
+        let isStudentMode = false;
+        let currentView = 'myfiles';
+        let filesData = [];
+        let currentUser = null;
+        let currentOrgId = localStorage.getItem('orgId') || null;
+        let currentOrgName = localStorage.getItem('orgName') || '';
+        let classesCache = [];
+        let currentClassId = null;
+        let currentAssignmentId = null;
+        let foldersCache = [];
+        let currentFolderId = null;
+
+        onAuthStateChanged(auth, async (user) => {
+            if (!user) { window.location.href = 'student-auth.html'; return; }
+            currentUser = user;
+
+            // Load student info
+            const studentRes = await getStudentByUID(user.uid);
+            if (studentRes.success) {
+                const { student_id, name, org_id } = studentRes.data;
+                document.getElementById('studentIdDisplay').textContent = student_id || 'Not assigned';
+                if (student_id) localStorage.setItem('studentId', student_id);
+                if (name) {
+                    document.getElementById('studentNameDisplay').textContent = name;
+                    localStorage.setItem('userName', name);
+                }
+                if (org_id) {
+                    currentOrgId = org_id;
+                    localStorage.setItem('orgId', String(org_id));
+                }
+            } else {
+                document.getElementById('studentIdDisplay').textContent = localStorage.getItem('studentId') || 'Not assigned';
+                document.getElementById('studentNameDisplay').textContent = localStorage.getItem('userName') || user.displayName || '';
+            }
+
+            // Load personal files
+            await initializeFiles();
+            updateStorageBar();
+
+            // Load notifications badge
+            loadNotifBadge();
+        });
+
+        async function initializeFiles() {
+            if (!currentUser) return;
+            const fr = await getUserFolders(currentUser.uid);
+            foldersCache = (fr.success && fr.data.folders) ? fr.data.folders : [];
+            if (currentFolderId) {
+                const r = await getFolderFiles(currentFolderId);
+                filesData = (r.success && r.data.files) ? r.data.files.map(f => mapFile(f)) : [];
+            } else {
+                const result = await getUserFiles(currentUser.uid, 'student');
+                filesData = (result.success && result.data.files) ? result.data.files.map(f => mapFile(f)) : [];
+            }
+            renderFiles();
+        }
+
+        function mapFile(f) {
+            return {
+                id: 'f-' + f.id, backendId: f.id, name: f.filename, type: 'file',
+                icon: getFileIcon(f.filename), color: getFileColor(f.filename),
+                info: formatFileSize(f.file_size) + ' · ' + formatDate(f.upload_time),
+                starred: false, trashed: f.trashed || false, date: f.upload_time,
+                isBackendFile: true, publicUrl: f.public_url || null
+            };
+        }
+
+        async function loadNotifBadge() {
+            if (!currentUser) return;
+            const r = await getNotificationsAPI(currentUser.uid);
+            if (r.success) {
+                const unread = r.data.notifications.filter(n => !n.is_read).length;
+                const badge = document.getElementById('notifBadge');
+                badge.textContent = unread;
+                badge.style.display = unread > 0 ? 'flex' : 'none';
+            }
+        }
+
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            const now = new Date();
+            const diffMs = now - date;
+            const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+            
+            if (diffDays === 0) return 'Today';
+            if (diffDays === 1) return 'Yesterday';
+            if (diffDays < 7) return `${diffDays} days ago`;
+            return date.toLocaleDateString();
+        }
+
+        function renderFiles() {
+            const fileGrid = document.getElementById('fileGrid');
+            let filteredFiles = [];
+
+            switch(currentView) {
+                case 'myfiles':    filteredFiles = filesData.filter(f => !f.trashed); break;
+                case 'starred':    filteredFiles = filesData.filter(f => f.starred && !f.trashed); break;
+                case 'trash':      filteredFiles = filesData.filter(f => f.trashed); break;
+                case 'recent':     filteredFiles = filesData.filter(f => !f.trashed).sort((a,b) => new Date(b.date)-new Date(a.date)); break;
+                default:           filteredFiles = filesData.filter(f => !f.trashed);
+            }
+
+            // Folder cards in root myfiles view
+            let folderHtml = '';
+            if (currentView === 'myfiles' && !currentFolderId) {
+                folderHtml = foldersCache.map(folder => `
+                    <div class="file-card" onclick="openFolder(${folder.id},'${folder.name.replace(/'/g,"\\'")}')">
+                        <button class="file-menu" onclick="deleteFolderItem(event,${folder.id})" title="Delete folder"><i class="fas fa-trash" style="color:#ef4444;font-size:0.85rem;"></i></button>
+                        <div class="file-icon"><i class="fas fa-folder" style="color:#f59e0b;"></i></div>
+                        <div class="file-name">${folder.name}</div>
+                        <div class="file-info">${folder.file_count || 0} file${folder.file_count !== 1 ? 's' : ''}</div>
+                    </div>
+                `).join('');
+            }
+
+            if (!folderHtml && filteredFiles.length === 0) {
+                fileGrid.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-folder-open"></i>
+                        <h3>No ${currentView === 'trash' ? 'items in trash' : currentView === 'starred' ? 'starred items' : 'files'}</h3>
+                        <p>${currentView === 'trash' ? 'Deleted items will appear here' : currentView === 'starred' ? 'Star your important files to find them quickly' : 'Upload files to get started'}</p>
+                    </div>
+                `;
+                return;
+            }
+
+            fileGrid.innerHTML = folderHtml + filteredFiles.map(file => `
+                <div class="file-card" data-file-id="${file.id}">
+                    ${file.starred && !file.trashed ? '<div class="star-badge"><i class="fas fa-star"></i></div>' : ''}
+                    ${file.trashed ? '<div class="trash-badge">Deleted</div>' : ''}
+                    <button class="file-menu" onclick="toggleDropdown(event, '${file.id}')">
+                        <i class="fas fa-ellipsis-v"></i>
+                    </button>
+                    <div class="dropdown-menu" id="dropdown-${file.id}">
+                        ${!file.trashed ? `
+                            <div class="dropdown-item" onclick="toggleStar('${file.id}')">
+                                <i class="fas fa-star"></i>
+                                <span>${file.starred ? 'Unstar' : 'Star'}</span>
+                            </div>
+                            ${file.type === 'file' ? `
+                                <div class="dropdown-item" onclick="downloadFile('${file.id}')">
+                                    <i class="fas fa-download"></i>
+                                    <span>Download</span>
+                                </div>
+                            ` : ''}
+                            <div class="dropdown-divider"></div>
+                            <div class="dropdown-item danger" onclick="moveToTrash('${file.id}')">
+                                <i class="fas fa-trash"></i>
+                                <span>Move to Trash</span>
+                            </div>
+                        ` : `
+                            <div class="dropdown-item" onclick="restoreFile('${file.id}')">
+                                <i class="fas fa-undo"></i>
+                                <span>Restore</span>
+                            </div>
+                            <div class="dropdown-divider"></div>
+                            <div class="dropdown-item danger" onclick="permanentDelete('${file.id}')">
+                                <i class="fas fa-trash-alt"></i>
+                                <span>Delete Permanently</span>
+                            </div>
+                        `}
+                    </div>
+                    <div class="file-icon">
+                        <i class="fas ${file.icon}" style="color: ${file.color};"></i>
+                    </div>
+                    <div class="file-name">${file.name}</div>
+                    <div class="file-info">${file.info}</div>
+                </div>
+            `).join('');
+        }
+
+        function toggleDropdown(event, fileId) {
+            event.stopPropagation();
+            const dropdown = document.getElementById(`dropdown-${fileId}`);
+            const menuButton = event.currentTarget;
+            const allDropdowns = document.querySelectorAll('.dropdown-menu');
+            const allMenuButtons = document.querySelectorAll('.file-menu');
+            
+            allDropdowns.forEach(d => {
+                if (d.id !== `dropdown-${fileId}`) {
+                    d.classList.remove('show');
+                }
+            });
+            
+            allMenuButtons.forEach(btn => {
+                if (btn !== menuButton) {
+                    btn.classList.remove('active');
+                }
+            });
+            
+            dropdown.classList.toggle('show');
+            menuButton.classList.toggle('active');
+        }
+
+        window.toggleDropdown = toggleDropdown;
+        window.toggleStar = toggleStar;
+        window.moveToTrash = moveToTrash;
+        window.restoreFile = restoreFile;
+        window.permanentDelete = permanentDelete;
+        window.renameFile = renameFile;
+        window.downloadFile = downloadFile;
+        window.uploadFile = uploadFile;
+        window.createFolder = createFolder;
+        window.switchView = switchView;
+        window.toggleDashboard = toggleDashboard;
+        window.logout = logout;
+
+        function toggleStar(fileId) {
+            const file = filesData.find(f => f.id === fileId);
+            if (file) { file.starred = !file.starred; renderFiles(); }
+            closeAllDropdowns();
+        }
+
+        async function moveToTrash(fileId) {
+            const file = filesData.find(f => f.id === fileId);
+            if (file && file.isBackendFile) {
+                const r = await trashFile(file.backendId);
+                if (r.success) { file.trashed = true; file.starred = false; renderFiles(); }
+                else alert('Failed: ' + (r.error || 'Unknown error'));
+            }
+            closeAllDropdowns();
+        }
+
+        async function restoreFile(fileId) {
+            const file = filesData.find(f => f.id === fileId);
+            if (file && file.isBackendFile) {
+                const r = await restoreFileAPI(file.backendId);
+                if (r.success) { file.trashed = false; renderFiles(); }
+            }
+            closeAllDropdowns();
+        }
+
+        async function permanentDelete(fileId) {
+            const file = filesData.find(f => f.id === fileId);
+            if (!file) return;
+            if (confirm('Permanently delete this file? This cannot be undone.')) {
+                const result = await deleteFileFromBackend(file.backendId);
+                if (result.success) { filesData = filesData.filter(f => f.id !== fileId); renderFiles(); }
+                else alert('Failed to delete file: ' + (result.error || 'Unknown error'));
+            }
+            closeAllDropdowns();
+        }
+
+        function renameFile(fileId) {
+            alert('Renaming uploaded files is not supported yet');
+            closeAllDropdowns();
+        }
+
+        function downloadFile(fileId) {
+            const file = filesData.find(f => f.id === fileId);
+            if (file && file.isBackendFile) {
+                const url = file.publicUrl || `http://127.0.0.1:5000/api/files/download/${file.backendId}`;
+                window.open(url, '_blank');
+            }
+            closeAllDropdowns();
+        }
+
+        function closeAllDropdowns() {
+            document.querySelectorAll('.dropdown-menu').forEach(d => d.classList.remove('show'));
+            document.querySelectorAll('.file-menu').forEach(btn => btn.classList.remove('active'));
+        }
+
+        function uploadFile() {
+            document.getElementById('fileInput').click();
+        }
+
+        async function createFolder() {
+            const name = prompt('Folder name:');
+            if (!name || !name.trim()) return;
+            const r = await createFolderAPI(currentUser.uid, name.trim());
+            if (r.success) await initializeFiles();
+            else alert('Failed: ' + (r.data?.error || 'Unknown error'));
+        }
+
+        async function openFolder(folderId, folderName) {
+            currentFolderId = folderId;
+            document.getElementById('contentTitle').textContent = folderName;
+            const actionButtons = document.getElementById('actionButtons');
+            let backBtn = document.getElementById('folderBackBtn');
+            if (!backBtn) {
+                backBtn = document.createElement('button');
+                backBtn.id = 'folderBackBtn';
+                backBtn.className = 'btn-primary';
+                backBtn.style.cssText = 'background:rgba(100,116,139,0.1);color:#64748b;';
+                backBtn.innerHTML = '<i class="fas fa-arrow-left"></i> Back';
+                backBtn.onclick = closeFolderView;
+                actionButtons.prepend(backBtn);
+            }
+            await initializeFiles();
+        }
+
+        async function closeFolderView() {
+            currentFolderId = null;
+            document.getElementById('contentTitle').textContent = 'My Files';
+            const backBtn = document.getElementById('folderBackBtn');
+            if (backBtn) backBtn.remove();
+            await initializeFiles();
+        }
+
+        async function deleteFolderItem(event, folderId) {
+            event.stopPropagation();
+            if (!confirm('Delete this folder? Files inside will be moved to trash.')) return;
+            const r = await deleteFolderAPI(folderId);
+            if (r.success) await initializeFiles();
+            else alert('Failed: ' + (r.data?.error || 'Unknown error'));
+        }
+
+        function openProfileModal() {
+            const name  = localStorage.getItem('userName') || currentUser.displayName || '';
+            const email = currentUser.email || '';
+            const sid   = localStorage.getItem('studentId') || '—';
+            const org   = currentOrgId ? (localStorage.getItem('orgName') || '—') : '—';
+            document.getElementById('profileModal').classList.add('show');
+            document.getElementById('profileContent').innerHTML = `
+                <div style="text-align:center;margin-bottom:1.5rem;">
+                    <div style="width:80px;height:80px;border-radius:50%;background:var(--student-gradient);display:flex;align-items:center;justify-content:center;font-size:2rem;color:white;margin:0 auto 1rem;">${(name||email).charAt(0).toUpperCase()}</div>
+                    <div style="font-size:1.25rem;font-weight:700;color:#1e293b;">${name || email}</div>
+                    <div style="font-size:0.875rem;color:#64748b;">${email}</div>
+                </div>
+                <div style="background:#f8fafc;border-radius:12px;padding:1rem;margin-bottom:1rem;">
+                    <div style="display:flex;justify-content:space-between;padding:0.5rem 0;border-bottom:1px solid #e2e8f0;"><span style="color:#64748b;">Student ID</span><span style="font-weight:700;color:#f5576c;">${sid}</span></div>
+                    <div style="display:flex;justify-content:space-between;padding:0.5rem 0;border-bottom:1px solid #e2e8f0;"><span style="color:#64748b;">Role</span><span style="font-weight:600;">Student</span></div>
+                    <div style="display:flex;justify-content:space-between;padding:0.5rem 0;"><span style="color:#64748b;">Organisation</span><span style="font-weight:600;">${org}</span></div>
+                </div>
+                <div style="margin-bottom:1rem;">
+                    <label style="font-weight:600;color:#475569;display:block;margin-bottom:0.5rem;font-size:0.9rem;">Display Name</label>
+                    <input type="text" id="profileNameInput" value="${name}" placeholder="Your name" style="width:100%;padding:0.75rem 1rem;border:2px solid #ffe5eb;border-radius:10px;font-size:0.95rem;outline:none;">
+                </div>
+                <div style="display:flex;gap:1rem;justify-content:flex-end;">
+                    <button onclick="closeProfileModal()" style="background:#f8fafc;color:#64748b;border:2px solid #e2e8f0;padding:0.75rem 1.5rem;border-radius:12px;font-weight:600;cursor:pointer;">Close</button>
+                    <button onclick="saveProfile()" style="background:var(--student-gradient);color:white;border:none;padding:0.75rem 1.5rem;border-radius:12px;font-weight:600;cursor:pointer;">Save</button>
+                </div>
+            `;
+        }
+
+        function closeProfileModal() {
+            document.getElementById('profileModal').classList.remove('show');
+        }
+
+        async function saveProfile() {
+            const newName = document.getElementById('profileNameInput').value.trim();
+            if (!newName) return;
+            const r = await updateUserProfile(currentUser.uid, { name: newName });
+            if (r.success) {
+                localStorage.setItem('userName', newName);
+                document.getElementById('studentNameDisplay').textContent = newName;
+                closeProfileModal();
+            } else alert('Failed: ' + (r.data?.error || 'Unknown error'));
+        }
+
+        function getFileIcon(filename) {
+            const ext = filename.split('.').pop().toLowerCase();
+            const iconMap = {
+                'pdf': 'fa-file-pdf',
+                'doc': 'fa-file-word', 'docx': 'fa-file-word',
+                'xls': 'fa-file-excel', 'xlsx': 'fa-file-excel',
+                'ppt': 'fa-file-powerpoint', 'pptx': 'fa-file-powerpoint',
+                'jpg': 'fa-file-image', 'jpeg': 'fa-file-image', 'png': 'fa-file-image', 'gif': 'fa-file-image',
+                'mp4': 'fa-file-video', 'avi': 'fa-file-video',
+                'mp3': 'fa-file-audio', 'wav': 'fa-file-audio',
+                'zip': 'fa-file-archive', 'rar': 'fa-file-archive',
+                'txt': 'fa-file-alt',
+            };
+            return iconMap[ext] || 'fa-file';
+        }
+
+        function getFileColor(filename) {
+            const ext = filename.split('.').pop().toLowerCase();
+            const colorMap = {
+                'pdf': '#dc2626',
+                'doc': '#2563eb', 'docx': '#2563eb',
+                'xls': '#16a34a', 'xlsx': '#16a34a',
+                'ppt': '#ea580c', 'pptx': '#ea580c',
+                'jpg': '#059669', 'jpeg': '#059669', 'png': '#059669', 'gif': '#059669',
+                'mp4': '#7c3aed', 'avi': '#7c3aed',
+                'mp3': '#db2777', 'wav': '#db2777',
+                'zip': '#64748b', 'rar': '#64748b',
+                'txt': '#475569',
+            };
+            return colorMap[ext] || '#667eea';
+        }
+
+        function formatFileSize(bytes) {
+            if (!bytes || bytes === 0) return '—';
+            if (bytes < 1024) return bytes + ' B';
+            if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+            if (bytes < 1024 * 1024 * 1024) return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+            return (bytes / (1024 * 1024 * 1024)).toFixed(1) + ' GB';
+        }
+ 
+    function switchView(view, el) {
+        currentView = view;
+        document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
+        if (el) el.classList.add('active');
+
+        const titles = { myfiles:'My Files', recent:'Recent', starred:'Starred', trash:'Trash',
+                         classes:'My Classes', assignments:'Assignments', notes:'Notes' };
+        document.getElementById('contentTitle').textContent = titles[view] || view;
+
+        const dropzone = document.getElementById('dropzone');
+        const emptyTrashBtn = document.getElementById('emptyTrashBtn');
+        const fileGrid = document.getElementById('fileGrid');
+        const orgArea = document.getElementById('studentOrgArea');
+        const actionButtons = document.getElementById('actionButtons');
+
+        // Hide all org sub-views first
+        ['classesGrid','classDetailView','assignSubmitView','allAssignmentsView','allNotesView'].forEach(id => {
+            document.getElementById(id).style.display = 'none';
+        });
+
+        if (['classes','assignments','notes'].includes(view)) {
+            fileGrid.style.display = 'none';
+            dropzone.style.display = 'none';
+            emptyTrashBtn.style.display = 'none';
+            actionButtons.style.display = 'none';
+            orgArea.style.display = 'block';
+
+            if (view === 'classes') {
+                document.getElementById('classesGrid').style.display = 'grid';
+                renderStudentClasses();
+            } else if (view === 'assignments') {
+                document.getElementById('allAssignmentsView').style.display = 'block';
+                renderAllAssignments();
+            } else if (view === 'notes') {
+                document.getElementById('allNotesView').style.display = 'block';
+                renderAllNotes();
+            }
+        } else {
+            orgArea.style.display = 'none';
+            fileGrid.style.display = 'grid';
+            actionButtons.style.display = 'flex';
+            dropzone.style.display = view === 'myfiles' ? 'block' : 'none';
+            emptyTrashBtn.style.display = view === 'trash' ? 'flex' : 'none';
+            renderFiles();
+        }
+    }
+
+    function toggleDashboard() {
+        const body = document.body;
+        const toggleSwitch = document.getElementById('toggleSwitch');
+        const dropzone = document.getElementById('dropzone');
+        const fileGrid = document.getElementById('fileGrid');
+        const orgArea = document.getElementById('studentOrgArea');
+        const actionButtons = document.getElementById('actionButtons');
+        const studentSection = document.getElementById('studentSection');
+        const contentTitle = document.getElementById('contentTitle');
+
+        body.classList.add('transitioning');
+        setTimeout(() => {
+            isStudentMode = !isStudentMode;
+            document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
+
+            if (isStudentMode) {
+                body.classList.add('student-mode');
+                toggleSwitch.classList.add('active');
+                document.getElementById('normalLabel').classList.remove('active');
+                document.getElementById('studentLabel').classList.add('active');
+                studentSection.style.display = 'block';
+                dropzone.style.display = 'none';
+                fileGrid.style.display = 'none';
+                actionButtons.style.display = 'none';
+                orgArea.style.display = 'block';
+                contentTitle.textContent = 'My Classes';
+                document.getElementById('classesGrid').style.display = 'grid';
+                ['classDetailView','assignSubmitView','allAssignmentsView','allNotesView'].forEach(id => {
+                    document.getElementById(id).style.display = 'none';
+                });
+                renderStudentClasses();
+                loadNotifBadge();
+                // Activate first student sidebar item
+                const first = studentSection.querySelector('.sidebar-item');
+                if (first) first.classList.add('active');
+            } else {
+                body.classList.remove('student-mode');
+                toggleSwitch.classList.remove('active');
+                document.getElementById('normalLabel').classList.add('active');
+                document.getElementById('studentLabel').classList.remove('active');
+                studentSection.style.display = 'none';
+                orgArea.style.display = 'none';
+                currentView = 'myfiles';
+                fileGrid.style.display = 'grid';
+                dropzone.style.display = 'block';
+                actionButtons.style.display = 'flex';
+                contentTitle.textContent = 'My Files';
+                renderFiles();
+                const navItems = document.querySelectorAll('.sidebar-section:not(#studentSection) .sidebar-item');
+                if (navItems.length > 0) navItems[0].classList.add('active');
+            }
+            body.classList.remove('transitioning');
+        }, 250);
+    }
+
+    // ── Student Org Functions ─────────────────────────────────────────────────
+
+    async function renderStudentClasses() {
+        const grid = document.getElementById('classesGrid');
+        grid.innerHTML = '<div class="empty-state" style="grid-column:1/-1;"><i class="fas fa-spinner fa-spin"></i><h3>Loading...</h3></div>';
+
+        const r = await getStudentClasses(currentUser.uid);
+        classesCache = r.success ? r.data.classes : [];
+        if (classesCache.length === 0) {
+            grid.innerHTML = '<div class="empty-state" style="grid-column:1/-1;"><i class="fas fa-chalkboard"></i><h3>No classes yet</h3><p>Your teacher will add you to a class</p></div>';
+            return;
+        }
+        const icons = ['fa-calculator','fa-flask','fa-laptop-code','fa-book','fa-atom','fa-globe'];
+        grid.innerHTML = classesCache.map((cls, i) => `
+            <div class="class-card" onclick="openStudentClass('${cls.id}')">
+                <div class="class-icon"><i class="fas ${icons[i % icons.length]}"></i></div>
+                <div class="class-name">${cls.name}</div>
+                <div class="class-teacher"><i class="fas fa-user-tie"></i> ${cls.teacher_name || 'Teacher'}</div>
+                <div class="class-stats">
+                    <div class="stat-item"><i class="fas fa-tasks"></i><span>${cls.assignment_count || 0} Assignments</span></div>
+                    <div class="stat-item"><i class="fas fa-book"></i><span>${cls.subject || ''}</span></div>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    async function openStudentClass(classId) {
+        currentClassId = classId;
+        const cls = classesCache.find(c => String(c.id) === String(classId));
+        if (!cls) return;
+        document.getElementById('classDetailTitle').textContent = cls.name;
+        document.getElementById('classesGrid').style.display = 'none';
+        document.getElementById('classDetailView').style.display = 'block';
+        document.getElementById('contentTitle').textContent = cls.name;
+
+        // Load notes and assignments
+        document.getElementById('stab-notes').innerHTML = '<div class="empty-state"><i class="fas fa-spinner fa-spin"></i></div>';
+        document.getElementById('stab-assignments').innerHTML = '';
+
+        const [notesRes, assignRes] = await Promise.all([
+            getClassNotes(classId),
+            getClassAssignments(classId)
+        ]);
+
+        renderStudentNotes(notesRes.success ? notesRes.data.notes : []);
+        renderStudentAssignments(assignRes.success ? assignRes.data.assignments : [], classId);
+    }
+
+    function backToClasses() {
+        currentClassId = null;
+        document.getElementById('classDetailView').style.display = 'none';
+        document.getElementById('classesGrid').style.display = 'grid';
+        document.getElementById('contentTitle').textContent = 'My Classes';
+    }
+
+    function switchStudentTab(tab, el) {
+        document.querySelectorAll('.stab-btn').forEach(b => b.classList.remove('active'));
+        if (el) el.classList.add('active');
+        document.querySelectorAll('.stab-content').forEach(c => c.style.display = 'none');
+        document.getElementById('stab-' + tab).style.display = 'block';
+    }
+
+    function renderStudentNotes(notes) {
+        const grid = document.getElementById('stab-notes');
+        if (notes.length === 0) {
+            grid.innerHTML = '<div class="empty-state"><i class="fas fa-file-alt"></i><h3>No notes yet</h3><p>Your teacher hasn\'t uploaded any notes</p></div>';
+            return;
+        }
+        grid.innerHTML = `<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:1.5rem;">` +
+            notes.map(n => `
+                <div class="note-card">
+                    <div class="note-icon"><i class="fas ${getFileIcon(n.file ? n.file.filename : n.title)}"></i></div>
+                    <div class="note-name">${n.title}</div>
+                    <div class="note-meta">${formatDate(n.created_at)}</div>
+                    ${n.file ? `<button onclick="window.open('${n.file.public_url}','_blank')" style="margin-top:0.75rem;background:var(--student-gradient);color:white;border:none;padding:0.4rem 1rem;border-radius:8px;font-size:0.8rem;cursor:pointer;font-weight:600;">Download</button>` : ''}
+                </div>
+            `).join('') + `</div>`;
+    }
+
+    function renderStudentAssignments(assignments, classId) {
+        const list = document.getElementById('stab-assignments');
+        if (assignments.length === 0) {
+            list.innerHTML = '<div class="empty-state"><i class="fas fa-tasks"></i><h3>No assignments yet</h3></div>';
+            return;
+        }
+        list.innerHTML = assignments.map(a => `
+            <div class="assignment-card" onclick="openAssignment(${a.id})">
+                <div class="assignment-icon"><i class="fas fa-tasks"></i></div>
+                <div class="assignment-info">
+                    <div class="assignment-title">${a.title}</div>
+                    <div class="assignment-meta">Due: ${a.due_date || 'No due date'}</div>
+                    ${a.file ? `<div style="margin-top:0.25rem;"><i class="fas fa-paperclip" style="color:#f5576c;font-size:0.8rem;"></i> <span style="font-size:0.8rem;color:#f5576c;">Question paper attached</span></div>` : ''}
+                </div>
+                <span class="assignment-marks">${a.marks} marks</span>
+            </div>
+        `).join('');
+    }
+
+    async function openAssignment(assignId) {
+        currentAssignmentId = assignId;
+        // Find assignment in all classes
+        let assignment = null;
+        for (const cls of classesCache) {
+            const r = await getClassAssignments(cls.id);
+            if (r.success) {
+                const a = r.data.assignments.find(a => String(a.id) === String(assignId));
+                if (a) { assignment = a; break; }
+            }
+        }
+        if (!assignment) return;
+
+        document.getElementById('classDetailView').style.display = 'none';
+        document.getElementById('assignSubmitView').style.display = 'block';
+        document.getElementById('assignSubmitTitle').textContent = assignment.title;
+        document.getElementById('assignSubmitMeta').textContent = `${assignment.marks} marks · Due: ${assignment.due_date || 'No due date'}`;
+        document.getElementById('contentTitle').textContent = assignment.title;
+
+        // Check if already submitted
+        const subRes = await getAssignmentSubmissions(assignId);
+        let alreadySubmitted = false;
+        let myFile = null;
+        let submitCount = 0;
+        let obtainedMarks = null;
+        if (subRes.success) {
+            const myStudentId = localStorage.getItem('studentId');
+            const found = subRes.data.submitted.find(s => s.student_id === myStudentId);
+            if (found) {
+                alreadySubmitted = true;
+                myFile = found.file;
+                submitCount = found.submit_count || 1;
+                obtainedMarks = found.obtained_marks;
+            }
+        }
+
+        const canSubmit = submitCount < 2;
+        const submitsLeft = 2 - submitCount;
+
+        document.getElementById('assignSubmitBody').innerHTML = `
+            <div class="submit-area">
+                <h4 style="font-weight:700;color:#1e293b;margin-bottom:1rem;">${assignment.description || 'Submit your work below.'}</h4>
+
+                ${obtainedMarks != null ? `
+                    <div style="background:linear-gradient(135deg,#d1fae5,#a7f3d0);border-radius:12px;padding:1.25rem;margin-bottom:1rem;display:flex;align-items:center;gap:1rem;">
+                        <i class="fas fa-star" style="color:#065f46;font-size:1.5rem;"></i>
+                        <div>
+                            <div style="font-weight:700;color:#065f46;font-size:1rem;">Marks Received</div>
+                            <div style="font-size:1.5rem;font-weight:800;color:#065f46;">${obtainedMarks} / ${assignment.marks}</div>
+                        </div>
+                    </div>
+                ` : ''}
+
+                ${assignment.file ? `
+                    <div style="background:#fff5f7;border:2px solid #ffe5eb;border-radius:12px;padding:1rem;margin-bottom:1rem;display:flex;align-items:center;gap:1rem;">
+                        <i class="fas ${getFileIcon(assignment.file.filename)}" style="color:#f5576c;font-size:1.5rem;"></i>
+                        <div style="flex:1;">
+                            <div style="font-weight:600;color:#1e293b;font-size:0.9rem;">Question Paper</div>
+                            <div style="font-size:0.8rem;color:#64748b;">${assignment.file.filename}</div>
+                        </div>
+                        <button onclick="window.open('${assignment.file.public_url}','_blank')" style="background:var(--student-gradient);color:white;border:none;padding:0.5rem 1rem;border-radius:8px;font-size:0.875rem;cursor:pointer;font-weight:600;">
+                            <i class="fas fa-download"></i> Download
+                        </button>
+                    </div>
+                ` : ''}
+
+                ${alreadySubmitted ? `
+                    <div style="background:#d1fae5;border-radius:12px;padding:1.25rem;margin-bottom:1rem;display:flex;align-items:center;gap:1rem;">
+                        <i class="fas fa-check-circle" style="color:#065f46;font-size:1.5rem;"></i>
+                        <div style="flex:1;">
+                            <div style="font-weight:700;color:#065f46;">Submitted (${submitCount}/2)</div>
+                            ${myFile ? `<div style="font-size:0.875rem;color:#047857;">${myFile.filename}</div>` : ''}
+                        </div>
+                        ${myFile ? `<button onclick="window.open('${myFile.public_url}','_blank')" style="background:var(--student-gradient);color:white;border:none;padding:0.5rem 1rem;border-radius:8px;font-size:0.875rem;cursor:pointer;font-weight:600;">View</button>` : ''}
+                    </div>
+                ` : ''}
+
+                ${canSubmit ? `
+                    <div style="margin-top:1rem;">
+                        <label style="font-weight:600;color:#475569;display:block;margin-bottom:0.5rem;">
+                            Upload Answer File
+                            ${alreadySubmitted ? `<span style="color:#f5576c;font-size:0.8rem;font-weight:400;"> · ${submitsLeft} resubmit left</span>` : ''}
+                        </label>
+                        <input type="file" id="submitFileInput" style="width:100%;padding:0.75rem;border:2px solid #ffe5eb;border-radius:10px;font-size:0.95rem;">
+                    </div>
+                    <button onclick="submitMyAssignment(${assignId})" style="margin-top:1rem;background:var(--student-gradient);color:white;border:none;padding:0.75rem 2rem;border-radius:12px;font-weight:600;cursor:pointer;font-size:1rem;">
+                        <i class="fas fa-paper-plane"></i> ${alreadySubmitted ? 'Resubmit' : 'Submit Assignment'}
+                    </button>
+                ` : `
+                    <div style="background:#fee2e2;border-radius:12px;padding:1rem;margin-top:1rem;color:#991b1b;font-weight:600;">
+                        <i class="fas fa-lock"></i> Maximum submissions reached (2/2)
+                    </div>
+                `}
+            </div>
+        `;
+    }
+
+    function backFromAssignment() {
+        document.getElementById('assignSubmitView').style.display = 'none';
+        document.getElementById('classDetailView').style.display = 'block';
+        document.getElementById('contentTitle').textContent = document.getElementById('classDetailTitle').textContent;
+    }
+
+    async function submitMyAssignment(assignId) {
+        const fileInput = document.getElementById('submitFileInput');
+        if (!fileInput.files[0]) { alert('Please select a file to submit'); return; }
+
+        const btn = document.querySelector('#assignSubmitBody button');
+        btn.textContent = 'Submitting...'; btn.disabled = true;
+
+        const r = await submitAssignment(assignId, fileInput.files[0], currentUser.uid);
+        btn.disabled = false;
+
+        if (r.success) {
+            alert('Assignment submitted successfully!');
+            openAssignment(assignId); // Refresh view
+        } else {
+            btn.textContent = 'Submit Assignment';
+            alert('Failed: ' + (r.data?.error || 'Unknown error'));
+        }
+    }
+
+    async function renderAllAssignments() {
+        const list = document.getElementById('allAssignmentsList');
+        list.innerHTML = '<div class="empty-state"><i class="fas fa-spinner fa-spin"></i><h3>Loading...</h3></div>';
+        const r = await getStudentClasses(currentUser.uid);
+        classesCache = r.success ? r.data.classes : [];
+        let html = '';
+        for (const cls of classesCache) {
+            const ar = await getClassAssignments(cls.id);
+            const assignments = ar.success ? ar.data.assignments : [];
+            if (assignments.length > 0) {
+                html += `<div style="margin-bottom:2rem;"><div style="font-size:1rem;font-weight:700;color:#f5576c;margin-bottom:1rem;">${cls.name}</div>`;
+                html += assignments.map(a => `
+                    <div class="assignment-card" onclick="openAssignmentFromAll(${a.id},'${cls.id}')">
+                        <div class="assignment-icon"><i class="fas fa-tasks"></i></div>
+                        <div class="assignment-info">
+                            <div class="assignment-title">${a.title}</div>
+                            <div class="assignment-meta">Due: ${a.due_date || 'No due date'}</div>
+                        </div>
+                        <span class="assignment-marks">${a.marks} marks</span>
+                    </div>
+                `).join('');
+                html += '</div>';
+            }
+        }
+        if (!html) html = '<div class="empty-state"><i class="fas fa-tasks"></i><h3>No assignments yet</h3></div>';
+        list.innerHTML = html;
+    }
+
+    async function openAssignmentFromAll(assignId, classId) {
+        currentClassId = classId;
+        // Load class detail silently so back button works
+        const cls = classesCache.find(c => String(c.id) === String(classId));
+        if (cls) document.getElementById('classDetailTitle').textContent = cls.name;
+        document.getElementById('allAssignmentsView').style.display = 'none';
+        await openAssignment(assignId);
+    }
+
+    async function renderAllNotes() {
+        const list = document.getElementById('allNotesList');
+        list.innerHTML = '<div class="empty-state" style="grid-column:1/-1;"><i class="fas fa-spinner fa-spin"></i><h3>Loading...</h3></div>';
+        const r = await getStudentClasses(currentUser.uid);
+        classesCache = r.success ? r.data.classes : [];
+        let cards = '';
+        for (const cls of classesCache) {
+            const nr = await getClassNotes(cls.id);
+            const notes = nr.success ? nr.data.notes : [];
+            notes.forEach(n => {
+                cards += `
+                    <div class="note-card">
+                        <div class="note-icon"><i class="fas ${getFileIcon(n.file ? n.file.filename : n.title)}"></i></div>
+                        <div class="note-name">${n.title}</div>
+                        <div class="note-meta">${cls.name} · ${formatDate(n.created_at)}</div>
+                        ${n.file ? `<button onclick="window.open('${n.file.public_url}','_blank')" style="margin-top:0.75rem;background:var(--student-gradient);color:white;border:none;padding:0.4rem 1rem;border-radius:8px;font-size:0.8rem;cursor:pointer;font-weight:600;">Download</button>` : ''}
+                    </div>
+                `;
+            });
+        }
+        list.innerHTML = cards || '<div class="empty-state" style="grid-column:1/-1;"><i class="fas fa-book"></i><h3>No notes yet</h3></div>';
+    }
+
+        function logout() {
+            if (confirm('Are you sure you want to logout?')) {
+                auth.signOut().then(() => { localStorage.clear(); window.location.href = 'landing-page.html'; });
+            }
+        }
+
+        function handleFiles(files) {
+            if (!currentUser) { alert('Please login to upload files'); return; }
+            const filesArray = Array.from(files);
+            if (!filesArray.length) return;
+            const msg = document.createElement('div');
+            msg.style.cssText = 'position:fixed;top:20px;right:20px;background:#f5576c;color:white;padding:1rem 2rem;border-radius:8px;z-index:1000;';
+            msg.textContent = `Uploading ${filesArray.length} file(s)...`;
+            document.body.appendChild(msg);
+            Promise.all(filesArray.map(f => uploadFileToBackend(f, currentUser.uid, null, 'student')))
+                .then(async results => {
+                    document.body.removeChild(msg);
+                    const ok = results.filter(r => r.success).length;
+                    if (ok > 0) { await initializeFiles(); }
+                    else alert('Upload failed.');
+                });
+        }
+
+        async function emptyTrash() {
+            const trashed = filesData.filter(f => f.trashed);
+            if (trashed.length === 0) { alert('Trash is already empty.'); return; }
+            if (!confirm(`Permanently delete ${trashed.length} item(s)?`)) return;
+            const r = await emptyTrashAPI(currentUser.uid);
+            if (r.success) { await initializeFiles(); }
+            else alert('Failed: ' + (r.error || 'Unknown error'));
+        }
+
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.file-menu') && !e.target.closest('.dropdown-menu')) closeAllDropdowns();
+        });
+
+        const dropzone = document.getElementById('dropzone');
+        ['dragenter','dragover','dragleave','drop'].forEach(n => dropzone.addEventListener(n, e => e.preventDefault()));
+        ['dragenter','dragover'].forEach(n => dropzone.addEventListener(n, () => { dropzone.style.borderColor = 'var(--primary-color)'; }));
+        ['dragleave','drop'].forEach(n => dropzone.addEventListener(n, () => { dropzone.style.borderColor = '#cbd5e1'; }));
+        dropzone.addEventListener('drop', e => handleFiles(e.dataTransfer.files));
+
+        window.toggleDropdown = toggleDropdown;
+        window.toggleStar = toggleStar;
+        window.moveToTrash = moveToTrash;
+        window.restoreFile = restoreFile;
+        window.permanentDelete = permanentDelete;
+        window.downloadFile = downloadFile;
+        window.uploadFile = () => document.getElementById('fileInput').click();
+        window.createFolder = () => alert('Folder creation coming soon.');
+        window.switchView = switchView;
+        window.toggleDashboard = toggleDashboard;
+        window.logout = logout;
+        window.handleFiles = handleFiles;
+        window.emptyTrash = emptyTrash;
+        async function updateStorageBar() {
+            if (!currentUser) return;
+            const { getStorageUsage } = await import('/api.js');
+            const r = await getStorageUsage(currentUser.uid);
+            if (!r.success) return;
+            const used = r.data.used_bytes || 0;
+            const limit = 15 * 1024 * 1024 * 1024;
+            const pct = Math.min((used / limit) * 100, 100).toFixed(1);
+            const fmt = b => b < 1024 ? b+' B' : b < 1048576 ? (b/1024).toFixed(1)+' KB' : b < 1073741824 ? (b/1048576).toFixed(1)+' MB' : (b/1073741824).toFixed(2)+' GB';
+            document.getElementById('storageText').textContent = `${fmt(used)} of 15 GB`;
+            document.getElementById('storageBar').style.width = pct + '%';
+        }
+
+        let searchTimeout = null;
+        function handleSearch(query) {
+            clearTimeout(searchTimeout);
+            if (isStudentMode) return;
+            searchTimeout = setTimeout(async () => {
+                if (!query.trim()) { await initializeFiles(); return; }
+                const { searchFiles } = await import('/api.js');
+                const r = await searchFiles(currentUser.uid, query, 'student');
+                if (r.success) {
+                    filesData = r.data.files.map(f => ({
+                        id: 'f-' + f.id, backendId: f.id, name: f.filename, type: 'file',
+                        icon: getFileIcon(f.filename), color: getFileColor(f.filename),
+                        info: formatFileSize(f.file_size) + ' · ' + formatDate(f.upload_time),
+                        starred: false, trashed: f.trashed || false, date: f.upload_time,
+                        isBackendFile: true, publicUrl: f.public_url || null
+                    }));
+                    renderFiles();
+                }
+            }, 350);
+        }
+
+        async function openNotifPanel() {
+            document.getElementById('notifPanel').style.right = '0';
+            document.getElementById('notifOverlay').style.display = 'block';
+            const list = document.getElementById('notifPanelList');
+            list.innerHTML = '<div style="text-align:center;padding:2rem;color:#64748b;"><i class="fas fa-spinner fa-spin"></i></div>';
+            const r = await getNotificationsAPI(currentUser.uid);
+            const notifs = r.success ? r.data.notifications : [];
+            if (notifs.length === 0) {
+                list.innerHTML = '<div style="text-align:center;padding:2rem;color:#64748b;"><i class="fas fa-bell" style="font-size:2rem;margin-bottom:0.5rem;display:block;"></i>No notifications</div>';
+                return;
+            }
+
+            let html = `<div style="display:flex;justify-content:flex-end;margin-bottom:0.75rem;">
+                <button onclick="clearStudentNotifs()" style="background:#fee2e2;color:#dc2626;border:none;padding:0.4rem 1rem;border-radius:8px;font-size:0.8rem;font-weight:600;cursor:pointer;">
+                    <i class="fas fa-trash"></i> Clear All
+                </button>
+            </div>`;
+
+            html += notifs.map(n => {
+                const isInvite = n.body && n.body.startsWith('INVITE:');
+                // Check if already acted on — look for accepted/rejected in body
+                const isActed = n.body && (n.body.includes('ACCEPTED') || n.body.includes('REJECTED'));
+                let inviteHtml = '';
+                if (isInvite && !isActed) {
+                    const parts = n.body.split(':');
+                    const classId = parts[1];
+                    inviteHtml = `
+                        <div style="display:flex;gap:0.5rem;margin-top:0.75rem;" id="invite-btns-${n.id}">
+                            <button onclick="handleInvite(${classId},'accept',${n.id})" style="flex:1;background:var(--student-gradient);color:white;border:none;padding:0.5rem;border-radius:8px;font-weight:600;cursor:pointer;font-size:0.85rem;">
+                                <i class="fas fa-check"></i> Accept
+                            </button>
+                            <button onclick="handleInvite(${classId},'reject',${n.id})" style="flex:1;background:#fee2e2;color:#dc2626;border:none;padding:0.5rem;border-radius:8px;font-weight:600;cursor:pointer;font-size:0.85rem;">
+                                <i class="fas fa-times"></i> Decline
+                            </button>
+                        </div>
+                    `;
+                } else if (isInvite && isActed) {
+                    const accepted = n.body.includes('ACCEPTED');
+                    inviteHtml = `<div style="margin-top:0.5rem;font-size:0.8rem;font-weight:600;color:${accepted?'#065f46':'#991b1b'};">
+                        <i class="fas ${accepted?'fa-check-circle':'fa-times-circle'}"></i> ${accepted?'Accepted':'Declined'}
+                    </div>`;
+                }
+                const displayBody = isInvite ? "You've been invited to join a class" : (n.body || '');
+                return `
+                    <div style="padding:1rem;border-radius:12px;margin-bottom:0.75rem;background:${!n.is_read?'#fff5f7':'#f8fafc'};border:1px solid ${!n.is_read?'#ffe5eb':'#e2e8f0'};">
+                        <div style="font-weight:600;color:#1e293b;font-size:0.9rem;">${n.title}</div>
+                        <div style="font-size:0.8rem;color:#64748b;margin-top:0.2rem;">${displayBody}</div>
+                        <div style="font-size:0.75rem;color:#94a3b8;margin-top:0.25rem;">${formatDate(n.created_at)}</div>
+                        ${inviteHtml}
+                    </div>
+                `;
+            }).join('');
+
+            list.innerHTML = html;
+
+            if (notifs.some(n => !n.is_read)) {
+                await markAllNotificationsRead(currentUser.uid);
+                document.getElementById('notifBadge').style.display = 'none';
+            }
+        }
+
+        async function handleInvite(classId, action, notifId) {
+            const btns = document.getElementById(`invite-btns-${notifId}`);
+            if (btns) btns.innerHTML = '<i class="fas fa-spinner fa-spin" style="color:#64748b;"></i>';
+
+            const r = action === 'accept'
+                ? await acceptClassInvite(classId, currentUser.uid)
+                : await rejectClassInvite(classId, currentUser.uid);
+
+            if (r.success) {
+                // Mark notification body as acted so buttons don't reappear
+                const tag = action === 'accept' ? 'ACCEPTED' : 'REJECTED';
+                await fetch(`http://127.0.0.1:5000/api/notifications/${notifId}/tag`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ tag })
+                });
+                if (action === 'accept' && isStudentMode) renderStudentClasses();
+                loadNotifBadge();
+                openNotifPanel(); // refresh panel
+            } else {
+                alert('Failed: ' + (r.data?.error || 'Unknown error'));
+                openNotifPanel();
+            }
+        }
+
+        async function clearStudentNotifs() {
+            if (!confirm('Clear all notifications?')) return;
+            const r = await clearAllNotifications(currentUser.uid);
+            if (r.success) openNotifPanel();
+        }
+
+        function closeNotifPanel() {
+            document.getElementById('notifPanel').style.right = '-420px';
+            document.getElementById('notifOverlay').style.display = 'none';
+        }
+
+        window.openStudentClass = openStudentClass;
+        window.backToClasses = backToClasses;
+        window.switchStudentTab = switchStudentTab;
+        window.openAssignment = openAssignment;
+        window.openAssignmentFromAll = openAssignmentFromAll;
+        window.backFromAssignment = backFromAssignment;
+        window.submitMyAssignment = submitMyAssignment;
+        window.openNotifPanel = openNotifPanel;
+        window.closeNotifPanel = closeNotifPanel;
+        window.handleSearch = handleSearch;
+        window.handleInvite = handleInvite;
+        window.clearStudentNotifs = clearStudentNotifs;
+        window.openFolder = openFolder;
+        window.closeFolderView = closeFolderView;
+        window.deleteFolderItem = deleteFolderItem;
+        window.openProfileModal = openProfileModal;
+        window.closeProfileModal = closeProfileModal;
+        window.saveProfile = saveProfile;
+    </script>
+</body>
+</html>
